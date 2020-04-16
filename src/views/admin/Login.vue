@@ -60,7 +60,6 @@ export default {
  data () {
     return {
       form: this.$form.createForm(this),
-      visible: false,
       user:{
         email:'',
         password:''
@@ -79,10 +78,10 @@ export default {
       console.log(`登陆管理系统`)
       this.form.validateFields((err, values) => {
         if (!err) {
-          this.user.email=values.email;
-          this.user.password=values.password;
-          console.log(this.user.email)
-          console.log(this.user.password)
+          // this.user.email=values.email;
+          // this.user.password=values.password;
+          // console.log(this.user.email)
+          // console.log(this.user.password)
           login( {...values} ).then(res => {
             if(res.success === true) {
               this.$notification.success({message: res.data})

@@ -11,16 +11,17 @@
         ref="sign_up_form"
         id="sign_up_form"
         :form="form"
+        @submit="handleRegister"
        >
         <a-form-item>
         <a-input
           v-decorator="[
-            '用户ID',
+            'username',
             {
-              rules: [{ required: true, message: '用户ID不能为空!' }],
+              rules: [{ required: true, message: '用户昵称不能为空!' }],
             },
           ]"
-          placeholder="用户ID"
+          placeholder="用户昵称"
           style="height:42px;"
         >
         <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
@@ -29,7 +30,7 @@
         <a-form-item>
         <a-input-password
           v-decorator="[
-            '用户密码',
+            'password',
             {
               rules: [{ required: true, message: '用户密码不能为空!' }],
             },
@@ -43,9 +44,9 @@
         <a-form-item>
         <a-input-password
           v-decorator="[
-            '确认密码',
+            'comfirmPwd',
             {
-              rules: [{ required: true, message: '确认密码不一致!' }],
+              rules: [{ required: true, message: '确认密码不一致!' },{validator: handleValidConfirm}],
             },
           ]"
           placeholder="确认密码"
@@ -57,9 +58,9 @@
         <a-form-item>
         <a-input
           v-decorator="[
-            '用户邮箱',
+            'email',
             {
-              rules: [{ required: true, message: '邮箱不能为空!' }],
+              rules: [{ required: true, message: '邮箱不能为空!' },{validator: handleCheckEmail}],
             },
           ]"
           placeholder="用户邮箱"
@@ -71,9 +72,9 @@
         <a-form-item>
         <a-input
           v-decorator="[
-            '验证码',
+            'code',
             {
-              rules: [{ required: true, message: '验证码!' }],
+              rules: [{ required: true, message: '验证码不能为空' },{validator: handleCheckCode}],
             },
           ]"
           placeholder="验证码"
@@ -82,12 +83,12 @@
         <a-icon slot="prefix" type="key" style="color: rgba(0,0,0,.25)" />
         </a-input>
         <a-divider type="vertical" />
-        <a-button type="primary" html-type="submit">
-          获取验证码
+        <a-button type="primary" @click="getCode" :disabled="isGet">
+          {{this.codeTips}}
         </a-button>
         </a-form-item>
         <a-form-item style="margin-bottom: 0px;">
-          <a-checkbox style="font-size:10px;">
+          <a-checkbox style="font-size:10px;" :checked="checkBox" @change="onChange">
             已阅读并同意<b>ITHub</b>
             <a @click="showUserAgreement" style="color:red">
               《用户协议》
@@ -380,23 +381,29 @@
         </a-form-item>
        </a-form>
      </div>
-     <div class="third_part_register">
+     <!-- <div class="third_part_register">
        <a-divider style="color: gray;font-size: 12px;"><b>第三方账号注册</b></a-divider>
        <a @click="handleGithub"><a-icon type="github" style="fontSize: 22px" /></a>
        <a-divider type="vertical" />
        <a @click="handleQQ"><a-icon type="qq" style="fontSize: 22px" /></a>
-     </div>
+     </div> -->
    </div>
  </div>
 </template>
 
 <script>
+import { checkEmail, register, sendEmail } from '@/api/user'
+
 export default {
  name: 'Register',
  data () {
     return {
       form: this.$form.createForm(this),
       visible: false,
+      isGet: false,
+      timer: null,
+      codeTips: '获取验证码',
+      checkBox: false,
    };
  },
 
@@ -413,12 +420,102 @@ export default {
       /* 关闭用户协议 */
       this.visible = false;
     },
-    handleGithub: function() {
-      console.log(`GitHub第三方注册`)
+    handleCheckEmail(rule, value, callback) {
+      //验证邮箱格式
+      if (value != undefined && (!(/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value)))) {
+        callback('请输入正确的邮箱')
+      }
+      if(value != "") {
+        //验证邮箱是否被注册
+        checkEmail(value).then(res => {
+          if(res.success !== true) {
+            callback('邮箱已被注册')
+          }else {
+            callback();
+          }
+        })
+      }
     },
-    handleQQ: function() {
-      console.log(`QQ第三方注册`)
-    }
+    handleCheckCode(rule, value, callback) {
+      //检查验证码是否正确
+      if(value != undefined && !(/^\d{6}$/.test(value))) {
+        callback('验证码要求6位数字')
+      }else {
+        callback()
+      }
+      callback();
+    },
+    handleValidConfirm(rule, value, callback) {
+      //验证确认密码是否一致
+      if (value && value !== this.form.getFieldValue('password')) {
+        callback('确认密码不一致!');
+      }
+      callback();
+    },
+    //获取验证码
+    getCode() {
+      this.form.validateFields(['email'], (errors, values) => {
+        if(!errors) {
+          let email = this.form.getFieldValue('email')
+          console.log("可以获取验证码")
+          sendEmail( email ).then(res => {
+            if(res.success === true) {
+              if (!this.timer) {
+                  this.isGet = true
+                  this.codeTips = 60;
+                  this.show = false;
+                  this.timer = setInterval(() => {
+                  if (this.codeTips > 0 && this.codeTips <= 60) {
+                    this.codeTips--;
+                  } else {
+                    this.isGet = false;
+                    this.codeTips = '获取验证码'
+                    clearInterval(this.timer);
+                    this.timer = null;
+                  }
+                }, 1000)
+              }
+              this.$notification.success({message: res.data})
+            }else{
+              this.$message.error(`${res.data}`)
+            }
+          }).catch(err => {
+            this.$message.error(`获取验证码失败：请求异常，请稍后再试`)
+          })
+        }
+      });
+    },
+    //是否选中注册协议
+    onChange(e) {
+      console.log(e.target.checked)
+      this.checkBox = e.target.checked
+    },
+    //注册用户
+    handleRegister(e) {
+      console.log("普通用户注册")
+      e.preventDefault();
+      const {
+        form: { validateFields }
+      } = this
+      validateFields((err, values) => {
+        if (!err) {
+          if(!this.checkBox) {
+            this.$message.error(`请同意用户协议`)
+            return
+          }
+          register({...values}).then(res => {
+            if (res.success === true) {
+              this.$router.push({path:'/login'})
+              this.$message.success(`${res.data}`)
+            } else {
+              this.$message.error(`${res.data}`)
+            }
+          }).catch(err => {
+              this.$message.error(`注册出错！: 请稍后再试`)
+          }) 
+        }
+      })
+    },
  }
 }
 
@@ -468,7 +565,6 @@ export default {
   }
   .sign_up{
     width: 300px;
-    height: 300px;
     margin: auto;
   }
   .sign_up_input{

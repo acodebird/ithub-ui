@@ -11,13 +11,14 @@
         ref="reset_form"
         id="reset_form"
         :form="form"
+        @submit="handleReset"
        >
         <a-form-item>
         <a-input
           v-decorator="[
             'email',
             {
-              rules: [{ required: true, message: '邮箱不能为空!' }],
+              rules: [{ required: true, message: '邮箱不能为空!' },{validator: handleCheckEmail}],
             },
           ]"
           placeholder="请输入注册或绑定的邮箱"
@@ -27,29 +28,11 @@
         </a-input>
         </a-form-item>
         <a-form-item>
-        <a-input
-          v-decorator="[
-            'code',
-            {
-              rules: [{ required: true, message: '验证码!' }],
-            },
-          ]"
-          placeholder="验证码"
-          style="width:50%;height:42px;"
-        >
-        <a-icon slot="prefix" type="key" style="color: rgba(0,0,0,.25)" />
-        </a-input>
-        <a-divider type="vertical" />
-        <a-button type="primary" html-type="submit">
-          获取验证码
-        </a-button>
-        </a-form-item>
-        <a-form-item>
         <a-input-password
           v-decorator="[
             'password',
             {
-              rules: [{ required: true, message: '用户密码不能为空!' }],
+              rules: [{ required: true, message: '密码不能为空!' }],
             },
           ]"
           placeholder="请输入新密码"
@@ -61,9 +44,9 @@
         <a-form-item>
         <a-input-password
           v-decorator="[
-            'repassword',
+            'comfirmPwd',
             {
-              rules: [{ required: true, message: '用户密码不能为空!' }],
+              rules: [{ required: true, message: '确认密码不一致!' },{validator: handleValidConfirm}],
             },
           ]"
           placeholder="用请确认新密码"
@@ -71,6 +54,24 @@
         >
         <a-icon slot="prefix" type="safety" style="color: rgba(0,0,0,.25)" />
         </a-input-password>
+        </a-form-item>
+        <a-form-item>
+        <a-input
+          v-decorator="[
+            'code',
+            {
+              rules: [{ required: true, message: '请填写验证码' },{validator: handleCheckCode}],
+            },
+          ]"
+          placeholder="验证码"
+          style="width:50%;height:42px;"
+        >
+        <a-icon slot="prefix" type="key" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+        <a-divider type="vertical" />
+        <a-button type="primary" @click="getCode" :disabled="isGet">
+          {{this.codeTips}}
+        </a-button>
         </a-form-item>
         <a-form-item>
           <a-button type="primary" html-type="submit" class="reset_button">
@@ -87,12 +88,18 @@
 </template>
 
 <script>
+import { sendEmail, resetPwd } from '@/api/user'
+
 export default {
  name: 'ResetPassword',
  data () {
     return {
       form: this.$form.createForm(this),
       visible: false,
+      isGet: false,
+      timer: null,
+      codeTips: '获取验证码',
+      checkBox: false,
    };
  },
 
@@ -101,8 +108,79 @@ export default {
  computed: {},
 
  methods: {
-    handleLogin: function(){
-      console.log(`登陆`)
+    handleCheckEmail(rule, value, callback) {
+      //验证邮箱格式
+      if (value != undefined && (!(/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value)))) {
+        callback('请输入正确的邮箱')
+      }
+      callback();
+    },
+    handleCheckCode(rule, value, callback) {
+      //检查验证码是否正确
+      if(value != undefined && !(/^\d{6}$/.test(value))) {
+        callback('验证码要求6位数字')
+      }else {
+        callback()
+      }
+      callback();
+    },
+    handleValidConfirm(rule, value, callback) {
+      //验证确认密码是否一致
+      if (value && value !== this.form.getFieldValue('password')) {
+        callback('确认密码不一致!');
+      }
+      callback();
+    },
+    //获取验证码
+    getCode() {
+      this.form.validateFields(['email'], (errors, values) => {
+        if(!errors) {
+          let email = this.form.getFieldValue('email')
+          console.log("可以获取验证码")
+          sendEmail( email ).then(res => {
+            if(res.success === true) {
+              if (!this.timer) {
+                  this.isGet = true
+                  this.codeTips = 60;
+                  this.show = false;
+                  this.timer = setInterval(() => {
+                  if (this.codeTips > 0 && this.codeTips <= 60) {
+                    this.codeTips--;
+                  } else {
+                    this.isGet = false;
+                    this.codeTips = '获取验证码'
+                    clearInterval(this.timer);
+                    this.timer = null;
+                  }
+                }, 1000)
+              }
+              this.$notification.success({message: res.data})
+            }else{
+              this.$message.error(`${res.data}`)
+            }
+          }).catch(err => {
+            this.$message.error(`获取验证码失败：请求异常，请稍后再试`)
+          })
+        }
+      });
+    },
+    handleReset(e){
+      console.log(`重置密码`)
+      e.preventDefault();
+      this.form.validateFields((err, values) => {
+        if (!err) {
+          resetPwd( {...values} ).then(res => {
+            if(res.success === true) {
+              this.$notification.success({message: res.data})
+              this.$router.push({path:'/login'})
+            }else{
+              this.$message.error(`${res.data}`)
+            }
+          }).catch(err => {
+            this.$message.error(`重置密码失败：请求异常，请稍后再试`)
+          })
+        }
+      });
     },
  }
 }

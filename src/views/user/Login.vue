@@ -16,12 +16,12 @@
         <a-form-item>
         <a-input
           v-decorator="[
-            'account',
+            'email',
             {
-              rules: [{ required: true, message: '用户ID或邮箱不能为空!' }],
+              rules: [{ required: true, message: '用户不能为空!' }],
             },
           ]"
-          placeholder="用户ID或邮箱"
+          placeholder="用户邮箱"
           style="height:42px;"
         >
         <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
@@ -42,9 +42,9 @@
         </a-input-password>
         </a-form-item>
         <a-form-item style="margin-bottom: 8px;">
-          <a-checkbox>
+          <!-- <a-checkbox>
             <span style="color: gray;">记住我</span>
-          </a-checkbox>
+          </a-checkbox> -->
           <router-link style="color: red;float: right;" to="/reset">找回密码</router-link>
         </a-form-item>
         <a-form-item style="text-align: center;margin-bottom: 8px;">
@@ -58,23 +58,24 @@
         </a-form-item>
        </a-form>
      </div>
-     <div class="third_part_login">
+     <!-- <div class="third_part_login">
        <a-divider style="color: gray;font-size: 12px;"><b>第三方账号登录</b></a-divider>
        <a @click="handleGithub"><a-icon type="github" style="fontSize: 22px" /></a>
        <a-divider type="vertical" />
        <a @click="handleQQ"><a-icon type="qq" style="fontSize: 22px" /></a>
-     </div>
+     </div> -->
    </div>
  </div>
 </template>
 
 <script>
+import {login, isLogin } from '@/api/login'
+
 export default {
  name: 'Login',
  data () {
     return {
       form: this.$form.createForm(this),
-      visible: false,
    };
  },
 
@@ -83,17 +84,36 @@ export default {
  computed: {},
 
  methods: {
-    handleLogin(e){
+    handleLogin(e) {
       e.preventDefault();
-      console.log(`登陆`)
+      console.log(`普通用户登录`)
+      this.form.validateFields((err, values) => {
+        if (!err) {
+          login( {...values} ).then(res => {
+            if(res.success === true) {
+              this.$notification.success({message: res.data})
+              this.$router.push({path:'/'})
+            }else{
+              this.$message.error(`${res.data}`)
+            }
+          }).catch(err => {
+            this.$message.error(`登录失败：请求异常，请稍后再试`)
+          })
+        }
+      });
     },
-    handleGithub: function() {
-      console.log(`GitHub第三方登录`)
-    },
-    handleQQ: function() {
-      console.log(`QQ第三方登录`)
-    }
- }
+ },
+ created (){
+    //判断用户是否登录
+    isLogin().then(res => {
+      if (res.success === true) {
+        this.$router.push({path:'/'})
+        return
+      }
+    }).catch(ex => {
+      console.log('isLogin error',ex.message)
+    })
+  }
 }
 
 </script>

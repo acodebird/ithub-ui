@@ -29,6 +29,8 @@ import FollowList from '@/views/user/center/FollowList'
 import FansList from '@/views/user/center/FansList'
 //    5.3用户资源列表页面
 import ResourceList from '@/views/user/center/ResourceList'
+//    5.4用户个人信息页面
+import Profile from '@/views/user/center/Profile'
 // 6.用户消息相关页面
 import Message from '@/views/user/message/Message'
 // 7.下载页面
@@ -151,6 +153,12 @@ export default new Router({
       path: '/uc/resource-list',
       name: "ResourceList",
       component: ResourceList
+    },
+    {
+      //    5.4.用户个人信息页面
+      path: '/uc/profile',
+      name: "Profile",
+      component: Profile
     },
     // 6.用户消息相关页面
     {

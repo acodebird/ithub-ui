@@ -24,31 +24,31 @@
         <a-input-search placeholder="输入关键字" style="width: 200px" @search="onSearch" />
         <div style="float:right;margin-right:100px;">
           <a-button type="link" @click="onWriteBlog"><a-icon type="form" />写博客</a-button>
-          <a-dropdown>
+          <a-dropdown v-show="isLogin">
             <a class="ant-dropdown-link" href="#">
-              <a-badge :count="1">
+              <a-badge :count="noticesUnread.count">
                 <a-icon type="bell" :style="{ fontSize: '20px' }" /> 
               </a-badge>
             </a>
             <a-menu slot="overlay" @click="onClickBell">
-              <a-menu-item key="0">系统通知</a-menu-item>
-              <a-menu-item key="1">评论</a-menu-item>
-              <a-menu-item key="2">关注</a-menu-item>
-              <a-menu-item key="3">点赞</a-menu-item>
+              <a-menu-item key="0">系统通知&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.system}}</span></a-menu-item>
+              <a-menu-item key="1">评论&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.comment}}</span></a-menu-item>
+              <a-menu-item key="2">关注&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.focus}}</span></a-menu-item>
+              <a-menu-item key="3">点赞&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.like}}</span></a-menu-item>
             </a-menu>
           </a-dropdown>
           <a-divider type="vertical" />
           <a-button size="small" v-show="!isLogin"><router-link to="/login">登录</router-link></a-button>
           <a-button size="small" v-show="!isLogin"><router-link to="/register">注册</router-link></a-button>
           <a-dropdown v-show="isLogin">
-            <a class="ant-dropdown-link" href="#"><a-avatar icon="user" title="acodebird" src="../assets/acodebird.jpg" /> </a>
-            <a-menu slot="overlay" @click="onClickUser">
+            <a class="ant-dropdown-link" href="#"><a-avatar icon="user" :title="user.username" :src="user.avatar" /> </a>
+            <a-menu slot="overlay">
               <a-menu-item key="0"><a-icon type="schedule" />签到</a-menu-item>
-              <a-menu-item key="1"><a-icon type="user" />个人中心</a-menu-item>
+              <a-menu-item key="1"  @click="handleProfile"><a-icon type="user" />个人信息</a-menu-item>
               <a-menu-item key="2"><a-icon type="form" />我的博客</a-menu-item>
               <a-menu-item key="3"><a-icon type="setting" />管理博客</a-menu-item>
               <a-menu-item key="4"><a-icon type="download" />我的下载</a-menu-item>
-              <a-menu-item key="5"><a-icon type="logout" />退出</a-menu-item>
+              <a-menu-item key="5" @click="handleLogout"><a-icon type="logout" />退出</a-menu-item>
             </a-menu>
           </a-dropdown>
         </div>
@@ -58,6 +58,9 @@
 </template>
 
 <script>
+import { isLogin, logout } from '@/api/login'
+import { getUnread } from '@/api/notices'
+
 const clickType = {
   0: {
     text: '签到',
@@ -104,7 +107,19 @@ export default {
  name: 'Header',
  data () {
     return {
-      isLogin: true,
+      isLogin: false,
+      user:{
+        id: '',
+        username:'',
+        avatar:''
+      },
+      noticesUnread: {
+        count: '',
+        like: '',
+        focus: '',
+        comment: '',
+        system: '',
+      },
    };
  },
 
@@ -142,7 +157,57 @@ export default {
       //路由跳转，但不打开新页面
     // this.$router.push({path: '/article/write'});
    },
- }
+   //注销登录
+   handleLogout() {
+     console.log(`注销登录`);
+     logout().then(res => {
+       if(res.success === true) {
+         this.user = {}
+         this.isLogin = false
+         this.$notification.success({message: "成功退出登录"})
+         this.$router.push({path:'/'})
+       }
+     }).catch(ex => {
+       this.$message.error(`退出登录失败`)
+     })
+   },
+   //个人信息页面
+   handleProfile() {
+     this.$router.push({path: '/uc/profile'});
+   },
+   //加载未读消息数量
+   handleUnread() {
+     getUnread().then(res => {
+      if (res.success === true) {
+        this.noticesUnread.count = res.data.count > 0 ? res.data.count : ''
+        this.noticesUnread.like = res.data.like > 0 ? res.data.like : ''
+        this.noticesUnread.focus = res.data.focus > 0 ? res.data.focus : ''
+        this.noticesUnread.comment = res.data.comment > 0 ? res.data.comment : ''
+        this.noticesUnread.system = res.data.system > 0 ? res.data.system : ''
+      }
+    }).catch(ex => {
+      console.log('获取未读消息数量出错',ex.message)
+    })
+   },
+ },
+
+ created (){
+    //判断用户是否登录
+    isLogin().then(res => {
+      if (res.success === true) {
+        this.user.id = res.data.id
+        this.user.username = res.data.username
+        this.user.avatar = res.data.avatar
+        this.isLogin = true
+        console.log("加载未读消息数量")
+        this.handleUnread()
+        return
+      }
+    }).catch(ex => {
+      console.log('isLogin error',ex.message)
+    })
+    
+  },
 }
 
 </script>

@@ -58,3 +58,12 @@ export function getNoticesList (parameter) {
     params: parameter
   })
 }
+
+// 获取用户所有未读消息
+export function getUnread () {
+  return axios({
+    url: `${api.notices}/normal/getUnread`,
+    method: 'get',
+  })
+}
+

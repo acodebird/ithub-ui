@@ -59,10 +59,53 @@ export function getUserList (parameter) {
   })
 }
 
-// 修改密码 
+// 管理员修改密码 
 export function changePwd (parameter) {
   return axios({
     url: `${api.user}/pwd`,
+    method: 'put',
+    data: parameter
+  })
+}
+
+// 检查邮箱是否被注册 
+export function checkEmail (email) {
+  return axios({
+    url: `${api.user}/checkEmail/${email}`,
+    method: 'get',
+  })
+}
+
+// 注册用户
+export function register (parameter) {
+  return axios({
+    url: `${api.user}/register/${parameter.code}`,
+    method: 'post',
+    data: parameter
+  })
+}
+
+// 获取验证码
+export function sendEmail (email) {
+  return axios({
+    url: `${api.user}/sendEmail/${email}`,
+    method: 'get',
+  })
+}
+
+// 普通用户重置密码
+export function resetPwd (parameter) {
+  return axios({
+    url: `${api.user}/resetPwd/${parameter.code}`,
+    method: 'put',
+    data: parameter
+  })
+}
+
+// 普通用户修改昵称
+export function changeUsername (parameter) {
+  return axios({
+    url: `${api.user}/changeUsername`,
     method: 'put',
     data: parameter
   })

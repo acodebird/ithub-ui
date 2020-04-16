@@ -67,7 +67,6 @@
 import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import HeaderTag from '../../Header'
 import FooterTag from '../../Footer'
-import LeftTag from '../article/ArticleLeft'
 
 export default {
  name: 'FansList',
@@ -115,7 +114,6 @@ export default {
  components: {
    HeaderTag,
    FooterTag,
-   LeftTag,
  },
 
  computed: {},
