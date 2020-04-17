@@ -73,20 +73,20 @@
                   <a-icon type="plus" /> 创建专栏
                 </a-tag>
             </div>
-            <template>
-            <a-select
-              mode="default"
-              style="width: 100%"
-              placeholder="选择已有专栏"
-              @change="handleChange"
-              allowClear
-              v-decorator="['section']"
-            >
-              <a-select-option v-for="s in sections" :key="s.title">
-                {{s.title}}
-              </a-select-option>
-            </a-select>
-          </template>
+            <div v-show="sections.length > 0">
+              <a-select
+                mode="default"
+                style="width: 100%"
+                placeholder="选择已有专栏"
+                @change="handleChange"
+                allowClear
+                v-decorator="['section']"
+              >
+                <a-select-option v-for="s in sections" :key="s.name">
+                  {{s.name}}
+                </a-select-option>
+              </a-select>
+            </div>
           </a-form-item>
         </a-form>
       </a-spin>
@@ -95,6 +95,9 @@
 </template>
 
 <script>
+import { loadAll } from '@/api/column'
+import { addArticle,updateArticle } from '@/api/article'
+
 export default {
  name: 'PublishForm',
  data () {
@@ -116,35 +119,12 @@ export default {
       inputVisible2: false, //显示专栏输入框
       inputValue2: '', //输入框专栏内容
       section: '', //新建专栏
-      sections: [
-        {
-          id: 1,
-          title: 'Spring'
-        },
-        {
-          id: 2,
-          title: 'Vue'
-        },
-        {
-          id: 3,
-          title: 'Java'
-        },
-        {
-          id: 4,
-          title: '面试'
-        },
-        {
-          id: 5,
-          title: 'JDK'
-        },
-        {
-          id: 6,
-          title: '小记'
-        },
-      ], //已创建的专栏数组
+      sections: [], //已创建的专栏数组
       value: '[]', //选中已有的专栏
       title: '', //文章title
       content: '', //文章的markdown内容
+      html: '', //文章的html内容
+      id: undefined, //编辑文章的id
    };
  },
 
@@ -154,10 +134,17 @@ export default {
 
  methods: {
     //表单被调用函数，主要传递数据和显示表单
-    publish(title, content) {
-      this.title = title;
-      this.content = content;
-      this.visible = true;
+    publish(paramter) {
+      this.title = paramter.title
+      this.content = paramter.content
+      this.html = paramter.html
+      this.tags = paramter.tags
+      this.section = paramter.section
+      this.id = paramter.id
+      console.log(this.id)
+      this.visible = true
+      //加载用户专栏
+      this.loadAllColumn()
     },
     //关闭表单
     handleCancel() {
@@ -173,24 +160,62 @@ export default {
         })
         return;
       }
-      console.log(`文章title：${this.title};文章内容：${this.content};文章标签：${this.tags};文章专栏：${this.section}`);
-      console.log('发表文章成功');
-      this.tags = [],
-      this.section = '',
-      this.form.resetFields();
-      this.visible = false;
-      /* const {
-        form: { validateFields }
-      } = this;
-      validateFields((errors, values) => {
-        if (this.section || !errors) {
-          this.confirmLoading = true;
-          let parameter = {
-            'title': values.title,
-          };
-          console.log(`发表文章${parameter.title}`);
+      let parameter = {
+        "title": this.title,
+        "content": this.content,
+        "html": this.html,
+        "label": this.tags.join(","),
+        "section": this.section,
+        "status": "NORMAL",
+      }
+      if(this.id != undefined) {
+        console.log("编辑文章后发表文章")
+        debugger
+        let edit = {
+          "id": this.id,
         }
-      }) */
+        updateArticle({...parameter, ...edit}).then( res => {
+            if (res.success === true) {
+              this.tags = []
+              this.section = ''
+              this.form.resetFields()
+              this.visible = false
+              console.log('编辑文章成功')
+              this.$notification.success({message: "编辑文章成功"})
+              this.$router.push({path:'/article/detail',query: {"id": res.data}})
+            }
+        }).catch(err => {
+            console.log('发表文章出现异常',err.message)
+        })
+
+      }else{
+        console.log("新建文章后发表文章")
+        addArticle(parameter).then( res => {
+            if (res.success === true) {
+              this.tags = []
+              this.section = ''
+              this.form.resetFields()
+              this.visible = false
+              console.log('发表文章成功')
+              this.$notification.success({message: "发表文章成功"})
+              this.$router.push({path:'/article/detail',query: {"id": res.data}})
+            }
+        }).catch(err => {
+            console.log('发表文章出现异常',err.message)
+        })
+      }
+      return
+      //console.log(`文章title：${this.title};文章md内容：${this.content};文章html内容：${this.html};文章标签：${this.tags};文章专栏：${this.section}`);
+    },
+    //加载用户所有专栏
+    loadAllColumn() {
+      loadAll().then( res => {
+          if (res.success === true) {
+            this.sections = res.data
+          }
+      }).catch(err => {
+          console.log('加载用户专栏出错',err.message)
+      })
     },
     //动态添加标签相关函数
     //关闭标签

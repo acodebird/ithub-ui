@@ -146,7 +146,11 @@ export default {
       window.open(routeData.href, '_blank');
    },
    onWriteBlog() {
-     console.log(`写博客去啦！`);
+      if(!this.isLogin) {
+        this.$router.push({path: '/login'});
+        return
+      }
+      console.log(`写博客去啦！`);
      //路由跳转，跳转到新页面
      let routeData = this.$router.resolve({
           name: "Writing",

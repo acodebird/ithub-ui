@@ -59,9 +59,8 @@
 </template>
 
 <script>
-import { isLogin } from '@/api/login'
-
 import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
+import { isLogin } from '@/api/login'
 import HeaderTag from '../../Header'
 import FooterTag from '../../Footer'
 import ChangeUsername from '../form/ChangeUsername'

@@ -67,3 +67,43 @@ export function getUnread () {
   })
 }
 
+// 根据类型获取消息
+export function getNoticesByType (parameter) {
+  return axios({
+    url: `${api.notices}/normal`,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 点击消息从未读变为已读
+export function changeStatus (id) {
+  return axios({
+    url: `${api.notices}/normal/${id}`,
+    method: 'put',
+  })
+}
+
+// 根据消息类型标记所有消息已读
+export function changeAllStatus (type) {
+  return axios({
+    url: `${api.notices}/normal/changeAllStatus/${type}`,
+    method: 'put',
+  })
+}
+
+// 普通用户删除消息
+export function deleteByNormal (id) {
+  return axios({
+    url: `${api.notices}/normal/${id}`,
+    method: 'delete'
+  })
+}
+
+// 普通用户根据消息类型批量删除消息
+export function deleteBatchByNormal (type) {
+  return axios({
+    url: `${api.notices}/normal/deleteBatch/${type}`,
+    method: 'delete',
+  })
+}

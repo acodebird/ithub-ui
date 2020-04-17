@@ -9,34 +9,26 @@
      <!-- 左边公共组件 -->
      <left-tag></left-tag>
      <!-- 右边文章详情 -->
-     <a-col :span="14">
+     <a-col :span="16">
       <div class="article_detail">
         <a-row type="flex">
             <a-col :span="24">
-              <h2 class="article_titile">ssm整合时报错java.lang.ClassNotFoundException:org.springframework.web.bind.MissingMatrixVariableException</h2>
+              <h2 class="article_titile">{{article.title}}</h2>
             </a-col>
         </a-row>
         <a-row type="flex">
           <p class="info_box">
             <a-col :span="24">
-              <span class="time">发布时间：2019-09-01 15:20:50</span> 
-              <span>作者：<router-link style="color: blue;" to="/article">ACodeBird</router-link></span>
-              <span>专栏：<a href="#">ssm</a></span>
-							<span>阅读（200）</span>
+              <span class="time">发布时间：{{article.createTime}}</span> 
+              <span v-if="article.user">作者：<a @click="handleShowBloger(article.user.id)">{{article.user.username}}</a></span>
+              <span v-if ="article.status == 'NORMAL'">专栏：<a @click="handleShowColumn(article)">{{article.column.name}}</a></span>
+							<span>阅读（{{article.click}}）</span>
             </a-col>
           </p>
         </a-row>
         <a-row type="flex">
           <div class="content">
-            <div id="content_views" class="markdown_views prism-atom-one-light">
-            <h1><a name="t0"></a><a name="t0"></a><a id="1aopadvisoradvice_0"></a>1.aop:advisor配置的通知类必须实现advice接口</h1>
-            <p>常用的有下面几个接口：</p>
-            <h3><a name="t1"></a><a name="t1"></a><a id="1MethodBeforeAdvice___2"></a>1.MethodBeforeAdvice  前置通知</h3>
-            <h3><a name="t2"></a><a name="t2"></a><a id="2AfterReturningAdvice___3"></a>2.AfterReturningAdvice  成功通知</h3>
-            <h3><a name="t3"></a><a name="t3"></a><a id="3ThrowsAdvice__4"></a>3.ThrowsAdvice 异常通知</h3>
-            <h3><a name="t4"></a><a name="t4"></a><a id="4AfterAdvice_23_5"></a>4.AfterAdvice 是一个空接口，被2和3继承</h3>
-            <h5><a id="advice_6"></a>advice是一个空接口，定义方法还是跟平时一样</h5>
-            <h1><a name="t5"></a><a name="t5"></a>2.aop:aspect配置的通知类不用实现advice接口，普通类即可</h1>
+            <div id="content_views" class="markdown-body" v-html="article.html">
             </div>
           </div>
         </a-row>
@@ -46,7 +38,7 @@
               <div>
                 <span>标签：</span>
                 <span v-for="(tag, index) in tags"  :key="index">
-                  <a-icon type="tag" theme="filled"/>{{tag.content}}
+                  <a-icon type="tag" theme="filled"/>{{tag}}
                 </span>
               </div>
             </a-col>
@@ -139,7 +131,7 @@
                       </a-row>
                       <a-row type="flex" align="middle" justify="center">
                         <a-col>
-                          {{likes}}
+                          {{article.approval}}
                         </a-col>
                       </a-row>
                     </a-col>
@@ -153,11 +145,6 @@
                           </a>
                         </a-col>
                       </a-row>
-                      <a-row type="flex" align="middle" justify="center">
-                        <a-col>
-                          {{collects}}
-                        </a-col>
-                      </a-row>
                     </a-col>
                   </a-row>
                   <a-row type="flex" align="middle" justify="center" class="func">
@@ -167,6 +154,11 @@
                           <a href="javascript:void(0);" title="去评论" @click="handleToReply">
                             <a-icon type="message" style="fontSize: 16px;" />
                           </a>
+                        </a-col>
+                      </a-row>
+                      <a-row type="flex" align="middle" justify="center">
+                        <a-col>
+                          {{article.reply}}
                         </a-col>
                       </a-row>
                     </a-col>
@@ -212,32 +204,21 @@
 
 <script>
 import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
+import 'mavon-editor/dist/css/index.css'
 import moment from 'moment';
 import HeaderTag from '../../Header';
 import FooterTag from '../../Footer';
 import LeftTag from './ArticleLeft';
+import { getArticle } from '@/api/article'
+import { isLogin } from '@/api/login'
 
 export default {
  name: 'ArticleDetail',
  data () {
     return {
       zh_CN,
-      tags: [
-        {
-          id: 1,
-          content: "java"
-        },
-        {
-          id: 2,
-          content: "ssm"
-        },
-        {
-          id: 3,
-          content: "spring"
-        },
-      ],
+      tags: [],
       likes: 0,
-      collects: 1,
       value: '',
       length: 100,
       comments: [
@@ -287,6 +268,8 @@ export default {
       placeholder: "说点什么吧",
       defaultCurrent: 1,
       total: 100,
+      id: this.$route.query.id,
+      article: {},
    };
  },
 
@@ -301,13 +284,13 @@ export default {
      console.log(`点赞函数${this.likes++}`);
    },
    handleCollect() {
-     console.log(`收藏函数${this.collects++}`);
+     console.log(`收藏函数`);
    },
    handleLast(){
-     console.log(`上一篇函数${this.collects++}`);
+     console.log(`上一篇函数`);
    },
    handleNext(){
-     console.log(`下一篇函数${this.collects++}`);
+     console.log(`下一篇函数`);
    },
    handleToReply() {
      console.log(`去评论函数`);
@@ -371,7 +354,37 @@ export default {
    onChange(pageNumber) {
      console.log(`翻页: ${pageNumber}`);
    },
- }
+   //根据文章id加载文章信息
+   handleLoadArticle() {
+     getArticle(this.id).then(res => {
+       if(res.success === true) {
+         this.article = res.data
+         this.tags = res.data.label != null ? res.data.label.split(",") : ''
+       }
+     }).catch(ex => {
+       console.log('获取单个文章信息出现异常',ex.message)
+     })
+   },
+   //判断是否登录函数
+    handleIsLogin() {
+         //判断用户是否登录
+        isLogin().then(res => {
+            if (res.success === false) {
+                this.$router.push({path: '/login'})
+                return
+            }
+        }).catch(ex => {
+            console.log('isLogin error',ex.message)
+        })
+    },
+ },
+ created() {
+   //判断是否登录
+   this.handleIsLogin()
+   //加载文章信息
+   this.handleLoadArticle()
+ },
+
 }
 
 </script>

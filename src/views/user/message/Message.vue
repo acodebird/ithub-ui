@@ -14,19 +14,19 @@
                         <a-menu 
                         mode="vertical" 
                         @select="handleSelect"
-                        :defaultSelectedKeys="['0']"
+                        :defaultSelectedKeys="[key]"
                         >
-                        <a-menu-item key="0">
-                            <a-icon type="setting" />系统通知
+                        <a-menu-item key="/msg/notices">
+                            <a-icon type="setting" />系统通知&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.system}}</span>
                         </a-menu-item>
-                        <a-menu-item key="1">
-                            <a-icon type="message" />评论
+                        <a-menu-item key="/msg/comments">
+                            <a-icon type="message" />评论&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.comment}}</span>
                         </a-menu-item>
-                        <a-menu-item key="2">
-                            <a-icon type="user-add" />关注
+                        <a-menu-item key="/msg/focus">
+                            <a-icon type="user-add" />关注&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.focus}}</span>
                         </a-menu-item>
-                        <a-menu-item key="3">
-                            <a-icon type="like" />点赞
+                        <a-menu-item key="/msg/likes">
+                            <a-icon type="like" />点赞&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.like}}</span>
                         </a-menu-item>
                         </a-menu>
                     </div>
@@ -52,6 +52,8 @@
 import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import HeaderTag from '../../Header'
 import FooterTag from '../../Footer'
+import { getUnread } from '@/api/notices'
+import { isLogin } from '@/api/login'
 
 const msgType = {
   0: {
@@ -77,6 +79,13 @@ export default {
  data () {
     return {
         zh_CN,
+        key: this.$route.path,
+        noticesUnread: {
+          like: '',
+          focus: '',
+          comment: '',
+          system: '',
+        },
    };
  },
 
@@ -89,10 +98,38 @@ export default {
 
  methods: {
     handleSelect( {key} ) {
+     console.log(this.$route.path)
      console.log(`点击导航菜单${key}`);
-     this.$router.push({path: `${msgType[key].path}`});
+     this.$router.push({path: `${key}`});
    },
- }
+   //加载未读消息数量
+   handleUnread() {
+     getUnread().then(res => {
+      if (res.success === true) {
+        this.noticesUnread.like = res.data.like > 0 ? res.data.like : ''
+        this.noticesUnread.focus = res.data.focus > 0 ? res.data.focus : ''
+        this.noticesUnread.comment = res.data.comment > 0 ? res.data.comment : ''
+        this.noticesUnread.system = res.data.system > 0 ? res.data.system : ''
+      }
+    }).catch(ex => {
+      console.log('获取未读消息数量出错',ex.message)
+    })
+   },
+ },
+ created (){
+   //判断用户是否登录
+    isLogin().then(res => {
+      if (res.success === true) {
+        this.user = res.data
+      }else {
+        this.$router.push({path: '/'});
+      }
+    }).catch(ex => {
+      console.log('isLogin error',ex.message)
+    })
+   console.log("加载未读消息数量")
+   this.handleUnread()
+  },
 }
 
 </script>
