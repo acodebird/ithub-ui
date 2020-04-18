@@ -9,7 +9,7 @@ const api = {
 // 根据文章 id 获取文章信息
 export function getArticle (id) {
   return axios({
-    url: `${api.article}/${id}`,
+    url: `${api.article}/normal/${id}`,
     method: 'get'
   })
 }
@@ -74,5 +74,32 @@ export function deleteImg (parameter) {
     url: '/api/qiniu/deleteArticleImg',
     method: 'delete',
     data: parameter
+  })
+}
+
+// 用户主页加载所有文章 parameter: { pageSize: 10, pageNo: 1 }
+export function loadAll (parameter) {
+  return axios({
+    url: `${api.article}/normal/loadAll`,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 用户主页加载热门推荐 parameter: { pageSize: 20, pageNo: 1 }
+export function loadHot (parameter) {
+  return axios({
+    url: `${api.article}/normal/loadHot`,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 加载用户最新文章/热门文章/专栏文章 parameter: { pageSize: 5, pageNo: 1 }
+export function loadByUser (parameter) {
+  return axios({
+    url: `${api.article}/normal/loadByUser`,
+    method: 'get',
+    params: parameter
   })
 }

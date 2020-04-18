@@ -6,7 +6,7 @@ const api = {
   //column: '/column'
 }
 
-// 根据评论 id 获取专栏信息
+// 根据专栏 id 获取专栏信息
 export function getColumn (id) {
   return axios({
     url: `${api.column}/${id}`,
@@ -59,10 +59,18 @@ export function getColumnList (parameter) {
   })
 }
 
-// 获取所有专栏 
+// 获取已登录用户所有专栏 
 export function loadAll () {
-    return axios({
-      url: `${api.column}/loadAll`,
-      method: 'get',
-    })
-  }
+  return axios({
+    url: `${api.column}/loadAll`,
+    method: 'get',
+  })
+}
+
+// 根据用户获取所有专栏 
+export function loadAllByUser (userId) {
+  return axios({
+    url: `${api.column}/loadAll/${userId}`,
+    method: 'get',
+  })
+}

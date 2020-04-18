@@ -7,7 +7,7 @@
    <!-- 主页body -->
    <a-row type="flex" justify="start" :gutter="16" class="homeBody">
      <!-- 主页body左边导航栏 -->
-      <a-col :span="4">
+      <!-- <a-col :span="4">
         <div>
           <a-row type="flex" justify="end">
             <a-col :span="12">
@@ -32,11 +32,12 @@
             </a-col>
           </a-row>
         </div>
-      </a-col>
+      </a-col> -->
+      <a-col :span="3"></a-col>
       <!-- 主页body中间内容 -->
-      <a-col :span="14">
+      <a-col :span="15">
         <a-row type="flex">
-          <a-col :span="24">
+          <a-col :span="24" v-if="contents.length != 0">
             <template>
               <div class="blogList" v-for="(content, index) in contents" :key="index">
                 <a-row class="blog">
@@ -47,24 +48,24 @@
                     <div class="info">
                       <div style="float: left">
                         <span>
-                          <a @click="showBlogger">{{content.author}}</a>
+                          <a v-if="content.user" @click="showBlogger(content.user.id)">{{content.user.username}}</a>
                         </span>
-                        <span>{{content.time}}</span>
-                        <span v-for="(keyword, index) in content.keywords" :key="index">
+                        <span>{{content.createTime}}</span>
+                        <span  v-for="(keyword, index) in content.label!=null ? content.label.split(',') : ''" :key="index">
                           <a-icon type="tag" />{{keyword}}
                         </span>
                       </div>
                       <div style="float: right">
                         <span>
-                          <a-icon @click="addLike" type="like" />{{content.like}}
+                          <a-icon @click="addLike" type="like" />{{content.approval}}
                         </span>
                         <a-divider type="vertical" />
                         <span>
-                          <a-icon type="eye" />{{content.eye}}
+                          <a-icon type="eye" />{{content.click}}
                         </span>
                         <a-divider type="vertical" />
                         <span>
-                          <a-icon type="message" />{{content.message}}
+                          <a-icon type="message" />{{content.reply}}
                         </span>
                       </div>
                     </div>
@@ -81,7 +82,15 @@
                 <span>{{tips}}</span>
               </div>
               <!-- 加载更多 -->
-              <a @click="loadMore" class="loadMore">加载更多...</a>
+              <a v-if="isLoadMore" @click="loadMore" class="loadMore">加载更多...</a>
+              <a v-else class="loadMore">没有更多了</a>
+            </template>
+          </a-col>
+          <a-col :span="24" v-else>
+            <template>
+              <div style="min-height: 600px;background-color: white;">
+                <a-empty />
+              </div>
             </template>
           </a-col>
         </a-row>
@@ -92,35 +101,18 @@
           <a-col :span="18">
             <template>
               <div class="right_box" id="right_box">
-                <a-row class="technologicalFrontier">
-                  <a-col>
-                    <div class="category_title">
-                      <a>
-                        <strong>科技前沿</strong>
-                      </a>
-                    </div>
-                    <div class="category_content" v-for="(technologicalFrontier, index) in technologicalFrontiers" :key="index">
-                      <a-row class="category_content_item">
-                        <a-col>
-                          <a-icon type="link" />
-                          <a @click="showBlogDetail(technologicalFrontier.id)">{{technologicalFrontier.title}}</a>
-                        </a-col>
-                      </a-row>
-                    </div>
-                  </a-col>
-                </a-row>
                 <a-row class="recommendedDaily">
                   <a-col>
                     <div class="category_title">
                       <a>
-                        <strong>每日推荐</strong>
+                        <strong>热门推荐</strong>
                       </a>
                     </div>
-                    <div class="category_content" v-for="(recommendedDaily, index) in recommendedDailys" :key="index">
+                    <div class="category_content" v-for="(hot, index) in recommendedHots" :key="index">
                       <a-row class="category_content_item">
                         <a-col>
-                          <a-icon type="heart" />
-                          <a @click="showBlogDetail(recommendedDaily.id)">{{recommendedDaily.title}}</a>
+                          <span style="color: #e41414;"><a-icon type="fire" theme="filled" />{{hot.click}}</span>
+                          <a @click="showBlogDetail(hot.id)" style="font-weight: 500;color: #3d3d3d;">{{hot.title}}</a>
                         </a-col>
                       </a-row>
                     </div>
@@ -144,6 +136,7 @@
 import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import HeaderTag from './Header'
 import FooterTag from './Footer'
+import { loadAll,loadHot } from '@/api/article'
 
 export default {
  name: 'Home',
@@ -187,128 +180,15 @@ export default {
           title: '其他'
         }
       ],
-      contents: [
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        }
-      ],
-      technologicalFrontiers: [{
-          id: 1,
-          title: '关于mybatis插入数据到数据库成功，数据库却没有数据'
-        },
-        {
-          id: 1,
-          title: '关于mybatis插入数据到数据库成功，数据库却没有数据'
-        },
-        {
-          id: 1,
-          title: '关于mybatis插入数据到数据库成功，数据库却没有数据'
-        },
-        {
-          id: 1,
-          title: '关于mybatis插入数据到数据库成功，数据库却没有数据'
-        }
-      ],
-      recommendedDailys: [{
-          id: 1,
-          title: '关于mybatis插入数据到数据库成功，数据库却没有数据'
-        },
-        {
-          id: 1,
-          title: '关于mybatis插入数据到数据库成功，数据库却没有数据'
-        },
-        {
-          id: 1,
-          title: '关于mybatis插入数据到数据库成功，数据库却没有数据'
-        },
-        {
-          id: 1,
-          title: '关于mybatis插入数据到数据库成功，数据库却没有数据'
-        }
-      ],
+      contents: [],
+      recommendedHots: [],
       isFixed: false,
       isActive: true,
+      isLoadMore: true,
       loading: false,
+      pageSize: 10,
+      pageNo: 1,
+      queryParam: this.$route.query.queryParam,
       tips: '加载中......'
    };
  },
@@ -335,42 +215,76 @@ export default {
       console.log(this.loading)
       console.log(`点赞加1`)
     },
-    showBlogger() {
+    showBlogger(id) {
       console.log(`点击前往博主博客`);
-      this.$router.push({path: '/article'});
+      //this.$router.push({path: '/article'});
+      let routeData = this.$router.resolve({
+          path: `/article`,
+          query: {"userId": id},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
     },
-    showBlogDetail(e) {
-      console.log(`展示博客${e}详情`);
-      this.$router.push({path: '/article/detail'});
+    showBlogDetail(id) {
+      console.log(`展示博客${id}详情`);
+      //this.$router.push({path: '/article/detail',query: {"id": id}});
+      let routeData = this.$router.resolve({
+          path: `/article/detail`,
+          query: {"id": id},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
     },
     loadMore() {
       console.log(`加载更多`)
       this.loading = true;
-      window.setTimeout(() => {
-        this.loading = false;
-        for(let i in this.contents) {
-          this.contents.push(this.contents[i]);
+      if(this.queryParam === undefined) {
+        this.queryParam = ""
+      }
+      loadAll({"pageSize": this.pageSize, "pageNo": this.pageNo + 1, "param": this.queryParam}).then( res => {
+        if(res.success === true) {
+          this.loading = false
+          if(res.data.content.length == 0) {
+            this.isLoadMore = false
+            console.log(`没有啦`)
+            return
+          }
+          for(let i in res.data.content) {
+            this.contents.push(res.data.content[i]);
+          }
+          this.pageNo = this.pageNo + 1
+          console.log(`数据加载完成`)
         }
-        console.log(`数据加载完成`)
-      },1000);
+      }).catch(err => {
+         console.log('加载所有文章异常',ex.message)
+      })
+    },
+    loadAll() {
+      if(this.queryParam === undefined) {
+        this.queryParam = ""
+      }
+      loadAll({"pageSize": this.pageSize, "pageNo": this.pageNo, "param": this.queryParam}).then( res => {
+        if(res.success === true) {
+          this.contents = res.data.content
+          if(res.data.content.length < 10) {
+            this.isLoadMore = false
+          }
+        }
+      }).catch(err => {
+         console.log('加载所有文章异常',ex.message)
+      })
+    },
+    loadHot() {
+      loadHot({"pageSize": 20, "pageNo": this.pageNo}).then( res => {
+        if(res.success === true) {
+          this.recommendedHots = res.data.content
+        }
+      }).catch(err => {
+         console.log('加载热门推荐异常',ex.message)
+      })
     },
     scrollBottom() {
       let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      /* 加载更多数据 */
-      /* let clientHeight = document.documentElement.clientHeight;
-      let scrollHeight = document.documentElement.scrollHeight;
-      if (scrollTop + clientHeight >= scrollHeight-50) {
-        if(this.loading) return;
-        console.log(`滚动条到底部`)
-        this.loading = true;
-        window.setTimeout(() => {
-          this.loading = false;
-          for(let i in this.contents) {
-            this.contents.push(this.contents[i]);
-          }
-          console.log(`数据加载完成`)
-        },1000);
-      } */
       /* 固定左边导航栏 */
       let fixedNavigationBar = document.querySelector('#fixedNavigationBar');
       if(scrollTop >= 64) {
@@ -379,6 +293,10 @@ export default {
         this.isFixed = false;
       }
     }
+ },
+ created() {
+   this.loadAll() //加载所有文章
+   this.loadHot() //加载热门文章
  }
 }
 

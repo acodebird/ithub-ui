@@ -7,7 +7,7 @@
    <!-- 用户文章页面body -->
    <a-row type="flex" justify="start" :gutter="16" class="article_body">
      <!-- 左边公共组件 -->
-     <left-tag></left-tag>
+     <left-tag :userId="this.$route.query.userId"></left-tag>
      <!-- 右边关注列表 -->
      <a-col :span="14">
        <a-row type="flex">

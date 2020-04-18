@@ -110,3 +110,11 @@ export function changeUsername (parameter) {
     data: parameter
   })
 }
+
+// 加载用户信息：点赞/评论/资源等等数量
+export function loadInfo (userId) {
+  return axios({
+    url: `${api.user}/loadInfo/${userId}`,
+    method: 'get',
+  })
+}

@@ -2,7 +2,7 @@
 <template>
 <a-locale-provider :locale="zh_CN">
   <a-row type="flex" justify="start">
-    <a-col :span="20" style="min-height: 600px;" v-if="total > 0">
+    <a-col :span="20" v-if="total > 0">
       <div class="msg_box">
           <a-row type="flex" align="middle" class="msg_box_top">
             <a-col :span="18" class="unread">未读消息：{{unread}}</a-col>
@@ -34,9 +34,11 @@
         <a-pagination class="pagination" showQuickJumper :defaultCurrent="defaultCurrent" :total="total" @change="onChange" />
       </template>
     </a-col>
-    <a-col style="min-height: 600px;" :span="20" v-else>
+    <a-col :span="20" v-else>
       <template>
-        <a-empty />
+        <div class="msg_box">
+          <a-empty />
+        </div>
       </template>
     </a-col>
   </a-row>
@@ -154,6 +156,7 @@ export default {
     width: 100%;
     background-color: white;
     padding: 10px;
+    min-height: 600px;
   }
   .msg_box_top {
     height: 40px;

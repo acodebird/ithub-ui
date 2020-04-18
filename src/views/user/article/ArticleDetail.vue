@@ -7,13 +7,13 @@
    <!-- 用户文章页面body -->
    <a-row type="flex" justify="start" :gutter="16" class="article_body">
      <!-- 左边公共组件 -->
-     <left-tag></left-tag>
+     <left-tag v-if="article.user" :userId="article.user.id"></left-tag>
      <!-- 右边文章详情 -->
-     <a-col :span="16">
+     <a-col :span="15">
       <div class="article_detail">
         <a-row type="flex">
             <a-col :span="24">
-              <h2 class="article_titile">{{article.title}}</h2>
+              <h1 class="article_titile">{{article.title}}</h1>
             </a-col>
         </a-row>
         <a-row type="flex">
@@ -379,8 +379,6 @@ export default {
     },
  },
  created() {
-   //判断是否登录
-   this.handleIsLogin()
    //加载文章信息
    this.handleLoadArticle()
  },
@@ -411,6 +409,7 @@ export default {
     font: bold;
     padding-top: 20px;
     padding-bottom: 10px;
+    font-weight: 700;
   }
   .info_box {
     width: 100%;

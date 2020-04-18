@@ -37,17 +37,19 @@
               <a-menu-item key="3">点赞&nbsp;<span style="color: red;font-weight: 500">{{noticesUnread.like}}</span></a-menu-item>
             </a-menu>
           </a-dropdown>
+          <!-- <router-link to="/login"></router-link>
+          <router-link to="/register"></router-link> -->
           <a-divider type="vertical" />
-          <a-button size="small" v-show="!isLogin"><router-link to="/login">登录</router-link></a-button>
-          <a-button size="small" v-show="!isLogin"><router-link to="/register">注册</router-link></a-button>
+          <a-button size="small" v-show="!isLogin" @click="handleLoginAndRegister('/login')">登录</a-button>
+          <a-button size="small" v-show="!isLogin" @click="handleLoginAndRegister('/register')">注册</a-button>
           <a-dropdown v-show="isLogin">
             <a class="ant-dropdown-link" href="#"><a-avatar icon="user" :title="user.username" :src="user.avatar" /> </a>
             <a-menu slot="overlay">
               <a-menu-item key="0"><a-icon type="schedule" />签到</a-menu-item>
-              <a-menu-item key="1"  @click="handleProfile"><a-icon type="user" />个人信息</a-menu-item>
-              <a-menu-item key="2"><a-icon type="form" />我的博客</a-menu-item>
+              <a-menu-item key="1" @click="handleProfile"><a-icon type="user" />个人信息</a-menu-item>
+              <a-menu-item key="2" @click="handleArticle"><a-icon type="form" />我的博客</a-menu-item>
               <a-menu-item key="3"><a-icon type="setting" />管理博客</a-menu-item>
-              <a-menu-item key="4"><a-icon type="download" />我的下载</a-menu-item>
+              <a-menu-item key="4"><a-icon type="download" />我的资源</a-menu-item>
               <a-menu-item key="5" @click="handleLogout"><a-icon type="logout" />退出</a-menu-item>
             </a-menu>
           </a-dropdown>
@@ -130,6 +132,18 @@ export default {
  methods: {
    onSearch(value) {
       console.log(`查询内容:${value}`);
+      let routeData = this.$router.resolve({
+          path: `/`,
+          query: {"queryParam":value},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
+   },
+   handleLoginAndRegister(url) {
+      let routeData = this.$router.resolve({
+          path: url,
+      });
+      window.open(routeData.href, '_blank');
    },
    onClickBell({ key }) {
      console.log(`Click on item ${key}`);
@@ -178,6 +192,10 @@ export default {
    //个人信息页面
    handleProfile() {
      this.$router.push({path: '/uc/profile'});
+   },
+   //个人博客页面
+   handleArticle() {
+     this.$router.push({path: '/article',query: {"userId": this.user.id}});
    },
    //加载未读消息数量
    handleUnread() {

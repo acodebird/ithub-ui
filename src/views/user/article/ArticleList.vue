@@ -7,18 +7,18 @@
    <!-- 用户文章页面body -->
    <a-row type="flex" justify="start" :gutter="16" class="article_body">
      <!-- 左边公共组件 -->
-     <left-tag></left-tag>
+     <left-tag :userId="this.$route.query.userId"></left-tag>
      <!-- 右边文章列表 -->
      <a-col :span="14">
        <a-row type="flex">
-          <a-col :span="24">
+          <a-col :span="24" v-if="contents.length != 0">
             <template>
               <div class="query">
                 <a-row style="height:100%;" type="flex" align="middle" justify="end">
                   <a-col :span="2">排序：</a-col>
-                  <a-col :span="2"><a @click="handleQuery('time')">按更新时间</a></a-col>
+                  <a-col :span="2"><a :disabled="query == 'createTime'" @click="handleQuery('createTime')">按更新时间</a></a-col>
                   <a-divider type="vertical" />
-                  <a-col :span="2"><a @click="handleQuery('views')">按访问量</a></a-col>
+                  <a-col :span="2"><a :disabled="query == 'click'" @click="handleQuery('click')">按访问量</a></a-col>
                 </a-row>
               </div>
             </template>
@@ -32,24 +32,24 @@
                     <div class="info">
                       <div style="float: left">
                         <span>
-                          <a @click="showBlogger">{{content.author}}</a>
+                          <a v-if="content.user" @click="showBlogger">{{content.user.username}}</a>
                         </span>
-                        <span>{{content.time}}</span>
-                        <span v-for="(keyword, index) in content.keywords" :key="index">
+                        <span>{{content.createTime}}</span>
+                        <span  v-for="(keyword, index) in content.label!=null ? content.label.split(',') : ''" :key="index">
                           <a-icon type="tag" />{{keyword}}
                         </span>
                       </div>
                       <div style="float: right">
                         <span>
-                          <a-icon type="like" />{{content.like}}
+                          <a-icon type="like" />{{content.approval}}
                         </span>
                         <a-divider type="vertical" />
                         <span>
-                          <a-icon type="eye" />{{content.eye}}
+                          <a-icon type="eye" />{{content.click}}
                         </span>
                         <a-divider type="vertical" />
                         <span>
-                          <a-icon type="message" />{{content.message}}
+                          <a-icon type="message" />{{content.reply}}
                         </span>
                       </div>
                     </div>
@@ -65,7 +65,15 @@
               <a-pagination class="pagination" showQuickJumper :defaultCurrent="defaultCurrent" :total="total" @change="onChange" />
             </template>
           </a-col>
+          <a-col :span="24" v-else>
+            <template>
+              <div style="min-height: 600px;background-color: white;">
+                <a-empty />
+              </div>
+            </template>
+          </a-col>
         </a-row>
+        <br/><br/><br/><br/>
      </a-col>
    <!-- 回到顶部 -->
    <a-back-top />
@@ -81,100 +89,17 @@ import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import HeaderTag from '../../Header'
 import FooterTag from '../../Footer'
 import LeftTag from './ArticleLeft'
+import { loadByUser } from '@/api/article'
 
 export default {
  name: 'ArticleList',
  data () {
     return {
       zh_CN,
-      contents: [
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        }
-      ],
-      query: "time",
+      contents: [],
+      query: "createTime",
       defaultCurrent: 1,
-      total: 100,
+      total: 0,
    };
  },
 
@@ -188,23 +113,52 @@ export default {
 
  methods: {
     showBlogger() {
-      console.log(`点击前往博主博客`);
+      console.log(`点击前往博主博客`)
+      let routeData = this.$router.resolve({
+          path: `/article`,
+          query: {"userId": this.$route.query.userId},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
     },
-    showBlogDetail(e) {
-      console.log(`展示博客${e}详情`);
-      this.$router.push({path: '/article/detail'});
+    showBlogDetail(id) {
+      console.log(`展示博客${id}详情`);
+      let routeData = this.$router.resolve({
+          path: `/article/detail`,
+          query: {"id": id},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
     },
     onChange(pageNumber) {
       console.log(`翻页: ${pageNumber}`);
+      this.defaultCurrent = pageNumber
+      this.handleLoadByUser()
     },
     handleQuery(query) {
-      if(query === this.query) {
-        console.log(`查询不执行, ${query}`);
-      }else {
-        console.log(`查询执行, ${query}`);
-      }
+      this.query = query
+      this.handleLoadByUser() //根据更新时间或者访问量加载用户文章
     },
-  }
+    handleLoadByUser() {
+      let parameter=  {
+        "pageSize": 10, 
+        "pageNo": this.defaultCurrent,
+        "userId": this.$route.query.userId,
+        "sortField": this.query
+      }
+      loadByUser(parameter).then( res => {
+        if(res.success === true) {
+          this.contents = res.data.content
+          this.total = res.data.totalElements
+        }
+      }).catch(err => {
+         console.log('加载用户所有文章异常',err.message)
+      })
+    },
+  },
+  created() {
+    this.handleLoadByUser() //加载用户所有文章
+  },
 }
 
 </script>

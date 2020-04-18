@@ -32,7 +32,9 @@
     </a-col>
     <a-col style="min-height: 600px;" :span="20" v-else>
       <template>
-        <a-empty />
+        <div class="msg_box">
+          <a-empty />
+        </div>
       </template>
     </a-col>
   </a-row>
@@ -150,6 +152,7 @@ export default {
     width: 100%;
     background-color: white;
     padding: 10px;
+    min-height: 600px;
   }
   .msg_box_top {
     height: 40px;

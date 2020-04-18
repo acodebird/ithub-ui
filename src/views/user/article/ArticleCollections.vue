@@ -7,79 +7,64 @@
    <!-- 用户文章页面body -->
    <a-row type="flex" justify="start" :gutter="16" class="article_body">
      <!-- 左边公共组件 -->
-     <left-tag></left-tag>
+     <left-tag :userId="this.$route.query.userId"></left-tag>
      <!-- 右边文章列表 -->
      <a-col :span="14">
        <a-row type="flex">
-          <a-col :span="24">
+          <a-col :span="24" v-if="favorites.length != 0">
             <template>
-              <div class="category_title">
-                <a-row style="height:100%;" type="flex" justify="start">
-                    <a-col>
-                        <a-row type="flex" align="top" justify="start">
-                            <a-col>
-                                <a @click="handleReturn">
-                                  <a-icon type="left" />返回收藏夹
-                                </a>
-                            </a-col>
-                        </a-row>
-                        <a-row type="flex" justify="start" align="bottom" style="height: 60%;">
-                            <a-col>
-                                <strong style="font-size: 22px;">MyBatis</strong>
-                            </a-col>
-                            <a-col>
-                                <a-divider type="vertical"></a-divider>
-                            </a-col>
-                            <a-col>
-                                <a-button type="danger">管理收藏夹</a-button>
-                            </a-col>
-                        </a-row>
-                        <a-row type="flex" justify="start" align="top" style="height: 10%;">
-                          <a-col>
-                            <span style="font-size: 13px;">4篇文章</span>
-                          </a-col>
-                          <a-col>
-                            <a-divider type="vertical"></a-divider>
-                          </a-col>
-                          <a-col>
-                            <a @click="editCollections" title="编辑收藏夹" style="font-size: 12px;">编辑</a>
-                          </a-col>
-                        </a-row>
-                    </a-col>
-                </a-row>
+              <div class="collect">
+                  <a-row type="flex" align="middle" justify="start" style="height: 100%;">
+                      <a-col>
+                          <span style="color: red; font-weight: 700;">
+                            Ta的收藏
+                          </span>
+                      </a-col>
+                  </a-row>
               </div>
             </template>
             <template>
-              <div class="blogList" v-for="(content, index) in contents" :key="index">
+              <div class="blogList" v-for="(favorite, index) in favorites" :key="index">
                 <a-row class="blog">
                   <a-col class="blog_content">
                     <h4 class="title">
-                      <a @click="showBlogDetail(content.id)">{{content.title}}</a>
+                      <a @click="showBlogDetail(favorite.article.id)">{{favorite.article.title}}</a>
                     </h4>
                     <div class="info">
                       <div style="float: left">
                         <span>
-                          <a @click="showBlogger">{{content.author}}</a>
+                          <a @click="showBlogger(favorite.article.user.id)">{{favorite.article.user.username}}</a>
                         </span>
-                        <span>{{content.time}}</span>
-                        <span v-for="(keyword, index) in content.keywords" :key="index">
+                        <span>{{favorite.article.createTime}}</span>
+                        <span  v-for="(keyword, index) in favorite.article.label!=null ? content.label.split(',') : ''" :key="index">
                           <a-icon type="tag" />{{keyword}}
                         </span>
                       </div>
-                      <div style="float: right">
-                        <a-button type="danger">取消收藏</a-button>
+                      <div style="float: right" v-if="self">
+                        <a-button type="danger" @click="handleCancelCollect(favorite.id)">取消收藏</a-button>
                       </div>
                     </div>
                     <br><br>
                     <div class="summary">
-                     {{content.summary}}
+                     {{favorite.article.summary}}
                     </div>
                   </a-col>
                 </a-row>
               </div>
             </template>
+            <template>
+              <a-pagination class="pagination" showQuickJumper :defaultCurrent="defaultCurrent" :total="total" @change="onChange" />
+            </template>
+          </a-col>
+          <a-col :span="24" v-else>
+            <template>
+              <div style="min-height: 600px;background-color: white;">
+                <a-empty />
+              </div>
+            </template>
           </a-col>
         </a-row>
+        <br/><br/><br/><br/>
      </a-col>
    <!-- 回到顶部 -->
    <a-back-top />
@@ -95,97 +80,18 @@ import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import HeaderTag from '../../Header'
 import FooterTag from '../../Footer'
 import LeftTag from './ArticleLeft'
+import { getFavoritesList, deleteFavorites } from '@/api/favorites'
+import { isLogin } from '@/api/login'
 
 export default {
  name: 'ArticleCollections',
  data () {
     return {
-        zh_CN,
-      contents: [
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        }
-      ],
+      zh_CN,
+      favorites: [],
+      defaultCurrent: 1,
+      total: 0,
+      self: false,
    };
  },
 
@@ -198,21 +104,76 @@ export default {
  computed: {},
 
  methods: {
-    showBlogger() {
+    showBlogger(userId) {
       console.log(`点击前往博主博客`);
-      this.$router.push({path: '/article'});
+      let routeData = this.$router.resolve({
+          path: `/article`,
+          query: {"userId": userId},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
     },
-    showBlogDetail(e) {
-      console.log(`展示博客${e}详情`);
-      this.$router.push({path: '/article/detail'});
+    showBlogDetail(id) {
+      console.log(`展示博客${id}详情`);
+      let routeData = this.$router.resolve({
+          path: `/article/detail`,
+          query: {"id": id},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
     },
-    handleReturn() {
-      console.log(`返回收藏夹`);
-      this.$router.push({path: '/article/collection-list'});
+    onChange(pageNumber) {
+      console.log(`翻页: ${pageNumber}`);
+      this.defaultCurrent = pageNumber
+      this.handleLoadAll()
     },
-    editCollections(){
-      console.log(`编辑收藏夹`);
-    }
+    handleLoadAll() {
+      console.log(this.$route.query.userId)
+      let parameter =  {
+        "pageSize": 10, 
+        "pageNo": this.defaultCurrent,
+        "userId": this.$route.query.userId,
+      }
+      getFavoritesList(parameter).then( res => {
+        if(res.success === true) {
+          this.favorites = res.data.content
+          this.total = res.data.totalElements
+        }
+      }).catch(err => {
+         console.log('加载用户所有收藏异常',err.message)
+      })
+    },
+    //判断是否为当前用户的博客，是可以取消收藏文章，不是隐藏收藏文章按钮
+    handleIsSelf() {
+      let userId = this.$route.query.userId
+      isLogin().then(res => {
+        if (res.success === true) {
+          //console.log("创建获取用户id:" + this.$route.query.userId)
+          if(res.data.id == userId) {
+            this.self = true
+          }else{
+            this.self = false
+          }
+        }else {
+          this.self = false
+        }
+      })
+    },
+    //用户取消收藏
+    handleCancelCollect(id) {
+      console.log("取消收藏：" + id)
+      deleteFavorites(id).then( res => {
+        if(res.success === true) {
+          this.handleLoadAll()
+        }
+      }).catch(err => {
+         console.log('取消用户收藏异常',err.message)
+      })
+    },
+ },
+ created() {
+   this.handleLoadAll() //加载用户所有收藏
+   this.handleIsSelf() //判断是否为当前用户博客
  }
 }
 
@@ -247,6 +208,13 @@ export default {
     margin-bottom: 20px;
     border: 1px solid #ddd;
   }
+  .collect {
+    width: 100%;
+    height: 50px;
+    border: 1px solid #ddd;
+    background-color: white;
+    padding: 15px;
+  }
   .title a {
     color: #333;
     font-size: 20px;
@@ -262,5 +230,8 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .pagination {
+    float: right;
   }
 </style>

@@ -117,15 +117,15 @@ export default new Router({
       name: 'ArticleCategory',
       component: ArticleCategory
     },
-    {
-      //    4.4用户收藏夹页面
-      path: '/article/collection-list',
-      name: 'ArticleCollectionList',
-      component: ArticleCollectionList
-    },
+    // {
+    //   //    4.4用户收藏夹页面
+    //   path: '/article/collection-list',
+    //   name: 'ArticleCollectionList',
+    //   component: ArticleCollectionList
+    // },
     {
       //    4.5用户收藏夹详情页面
-      path: '/article/collection',
+      path: '/article/collection-list',
       name: 'ArticleCollections',
       component: ArticleCollections
     },

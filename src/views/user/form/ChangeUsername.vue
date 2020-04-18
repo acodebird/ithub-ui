@@ -93,6 +93,7 @@ export default {
               this.visible = false
               this.confirmLoading = false
               this.$emit('ok', values)
+              this.$router.go(0)
               this.$message.success('修改昵称成功！')
             } else {
               this.confirmLoading = false

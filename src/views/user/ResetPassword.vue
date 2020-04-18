@@ -89,6 +89,7 @@
 
 <script>
 import { sendEmail, resetPwd } from '@/api/user'
+import { logout } from '@/api/login'
 
 export default {
  name: 'ResetPassword',
@@ -172,6 +173,7 @@ export default {
           resetPwd( {...values} ).then(res => {
             if(res.success === true) {
               this.$notification.success({message: res.data})
+              this.handleLogout() //加入用户已经登录，则需要注销用户
               this.$router.push({path:'/login'})
             }else{
               this.$message.error(`${res.data}`)
@@ -182,6 +184,17 @@ export default {
         }
       });
     },
+    //注销登录
+   handleLogout() {
+     console.log(`注销登录`);
+     logout().then(res => {
+       if(res.success === true) {
+         console.log("重置密码后需要注销当前账户")
+       }
+     }).catch(ex => {
+       this.$message.error(`退出登录失败`)
+     })
+   },
  }
 }
 

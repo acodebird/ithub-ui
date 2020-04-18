@@ -96,7 +96,7 @@ export default {
     handleOk() {
       //this.$router.push({path: '/uc/profile'});
       this.handleReload() //重新加载数据
-      this.$router.go(0)
+      //this.$router.go(0)
     },
     // 文件上传相关函数
      handleData() {
