@@ -15,11 +15,10 @@ export function getFollow (id) {
 }
 
 // 增加关注
-export function addFollow (parameter) {
+export function addFollow (followId) {
   return axios({
-    url: api.follow,
+    url: `${api.follow}/${followId}`,
     method: 'post',
-    data: parameter
   })
 }
 
@@ -56,5 +55,13 @@ export function getFollowList (parameter) {
     url: api.follow,
     method: 'get',
     params: parameter
+  })
+}
+
+// 判断用户是否关注当前用户
+export function isFocus (userId) {
+  return axios({
+    url: `${api.follow}/${userId}`,
+    method: 'get',
   })
 }

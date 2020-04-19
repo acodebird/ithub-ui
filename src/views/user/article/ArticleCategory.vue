@@ -23,14 +23,14 @@
                     <a-col :span="20">
                         <a-row type="flex" justify="start" align="middle">
                             <a-col>
-                                <strong style="font-size: 22px;">MyBatis</strong>
+                                <strong style="font-size: 22px;">{{column.name}}</strong>
                             </a-col>
-                            <a-col>
+                            <!-- <a-col>
                                 <a-divider type="vertical"></a-divider>
                             </a-col>
                             <a-col>
                                 <a-button type="danger">管理专栏文章</a-button>
-                            </a-col>
+                            </a-col> -->
                         </a-row>
                     </a-col>
                 </a-row>
@@ -46,10 +46,10 @@
                     <div class="info">
                       <div style="float: left">
                         <span>
-                          <a @click="showBlogger">{{content.author}}</a>
+                          <a @click="showBlogger(content.user.id)">{{content.user.username}}</a>
                         </span>
                         <span>{{content.time}}</span>
-                        <span v-for="(keyword, index) in content.keywords" :key="index">
+                        <span  v-for="(keyword, index) in content.label!=null ? content.label.split(',') : ''" :key="index">
                           <a-icon type="tag" />{{keyword}}
                         </span>
                       </div>
@@ -59,11 +59,11 @@
                         </span>
                         <a-divider type="vertical" />
                         <span>
-                          <a-icon type="eye" />{{content.eye}}
+                          <a-icon type="eye" />{{content.click}}
                         </span>
                         <a-divider type="vertical" />
                         <span>
-                          <a-icon type="message" />{{content.message}}
+                          <a-icon type="message" />{{content.reply}}
                         </span>
                       </div>
                     </div>
@@ -75,8 +75,12 @@
                 </a-row>
               </div>
             </template>
+            <template>
+              <a-pagination class="pagination" showQuickJumper :defaultCurrent="defaultCurrent" :total="total" @change="onChange" />
+            </template>
           </a-col>
         </a-row>
+        <br/><br/><br/><br/>
      </a-col>
    <!-- 回到顶部 -->
    <a-back-top />
@@ -92,97 +96,102 @@ import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import HeaderTag from '../../Header'
 import FooterTag from '../../Footer'
 import LeftTag from './ArticleLeft'
+import {getColumn} from '@/api/column'
+import {loadByUser} from '@/api/article'
 
 export default {
  name: 'ArticleCategory',
  data () {
     return {
       zh_CN,
+      column: {},
       contents: [
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
+        // {
+        //   id: 1,
+        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
+        //   author: 'ACodeBird',
+        //   time: '2019-08-31 15:18:31',
+        //   keywords: ['aop','spring','java'],
+        //   like: 666,
+        //   eye: 888,
+        //   message: 911,
+        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
+        // },
+        // {
+        //   id: 1,
+        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
+        //   author: 'ACodeBird',
+        //   time: '2019-08-31 15:18:31',
+        //   keywords: ['aop','spring','java'],
+        //   like: 666,
+        //   eye: 888,
+        //   message: 911,
+        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
 
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
+        // },
+        // {
+        //   id: 1,
+        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
+        //   author: 'ACodeBird',
+        //   time: '2019-08-31 15:18:31',
+        //   keywords: ['aop','spring','java'],
+        //   like: 666,
+        //   eye: 888,
+        //   message: 911,
+        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
 
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
+        // },
+        // {
+        //   id: 1,
+        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
+        //   author: 'ACodeBird',
+        //   time: '2019-08-31 15:18:31',
+        //   keywords: ['aop','spring','java'],
+        //   like: 666,
+        //   eye: 888,
+        //   message: 911,
+        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
 
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
+        // },
+        // {
+        //   id: 1,
+        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
+        //   author: 'ACodeBird',
+        //   time: '2019-08-31 15:18:31',
+        //   keywords: ['aop','spring','java'],
+        //   like: 666,
+        //   eye: 888,
+        //   message: 911,
+        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
 
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
+        // },
+        // {
+        //   id: 1,
+        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
+        //   author: 'ACodeBird',
+        //   time: '2019-08-31 15:18:31',
+        //   keywords: ['aop','spring','java'],
+        //   like: 666,
+        //   eye: 888,
+        //   message: 911,
+        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
 
-        },
-        {
-          id: 1,
-          title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-          author: 'ACodeBird',
-          time: '2019-08-31 15:18:31',
-          keywords: ['aop','spring','java'],
-          like: 666,
-          eye: 888,
-          message: 911,
-          summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
+        // },
+        // {
+        //   id: 1,
+        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
+        //   author: 'ACodeBird',
+        //   time: '2019-08-31 15:18:31',
+        //   keywords: ['aop','spring','java'],
+        //   like: 666,
+        //   eye: 888,
+        //   message: 911,
+        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
 
-        }
+        // }
       ],
+      defaultCurrent: 1,
+      total: 0,
    };
  },
 
@@ -203,7 +212,53 @@ export default {
       console.log(`展示博客${e}详情`);
       this.$router.push({path: '/article/detail'});
     },
- }
+    onChange(pageNumber) {
+      console.log(`翻页: ${pageNumber}`)
+      this.defaultCurrent = pageNumber
+      this.handleLoadAllArticle()
+    },
+    //加载专栏信息
+    handleLoadCategory() {
+      console.log("加载专栏：" + this.$route.query.categoryId)
+      getColumn(this.$route.query.categoryId).then(res => {
+        if(res.success === true) {
+          this.column = res.data
+        }
+      }).catch(err => {
+        console.log("加载专栏信息异常：" + err.message)
+      })
+    },
+    //加载专栏文章
+    handleLoadAllArticle() {
+      let parameter=  {
+        "pageSize": 10, 
+        "pageNo": this.defaultCurrent,
+        "userId": this.$route.query.userId,
+        "columnId": this.$route.query.categoryId
+      }
+      loadByUser(parameter).then( res => {
+        if(res.success === true) {
+          this.contents = res.data.content
+          this.total = res.data.totalElements
+        }
+      }).catch(err => {
+         console.log('加载专栏文章异常',err.message)
+      })
+    },
+ },
+ created() {
+   this.handleLoadCategory() //加载专栏信息
+   this.handleLoadAllArticle() //加载专栏文章
+ },
+ watch: {
+  '$route' (to, from) {
+    if (to.path === '/article/category') {
+      this.contents = []
+      this.handleLoadCategory() //加载专栏信息
+      this.handleLoadAllArticle() //加载专栏文章
+    }
+  }
+}
 }
 
 </script>
@@ -252,5 +307,8 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .pagination {
+    float: right;
   }
 </style>

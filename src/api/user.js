@@ -118,3 +118,19 @@ export function loadInfo (userId) {
     method: 'get',
   })
 }
+
+// 判断用户是否签到
+export function isSign () {
+  return axios({
+    url: `${api.user}/isSign`,
+    method: 'get',
+  })
+}
+
+// 用户签到
+export function sign () {
+  return axios({
+    url: `${api.user}/sign`,
+    method: 'post',
+  })
+}

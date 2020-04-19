@@ -11,13 +11,13 @@
      <!-- 右边关注列表 -->
      <a-col :span="14">
        <a-row type="flex">
-          <a-col :span="24">
+          <a-col :span="24" v-if="resources.length != 0">
             <template>
               <div class="item">
                   <a-row type="flex" align="middle" justify="start" style="height: 100%;">
                       <a-col>
                           <span style="color: red; font-weight: 700;">
-                            Ta的资源({{count}})
+                            Ta的资源
                           </span>
                       </a-col>
                   </a-row>
@@ -33,14 +33,14 @@
                     <div class="info">
                       <div style="float: left">
                         <span>
-                          <a @click="showBlogger">上传作者：{{resource.author}}</a>
+                          上传作者：<a @click="showBlogger(resource.user.id)">{{resource.user.username}}</a>
                         </span>
-                        <span>上传时间：{{resource.time}}</span>
+                        <span>上传时间：{{resource.uploadTime}}</span>
                         <span>所需积分：{{resource.integral}}</span>
                       </div>
                     </div>
-                    <div style="float: right">
-                        <a-button type="danger">下载</a-button>
+                    <div style="float: right" v-if="!self">
+                        <a-button type="danger" @click="handleDownload(resource)">下载</a-button>
                       </div>
                     <br><br>
                     <div class="description">
@@ -54,12 +54,21 @@
               <a-pagination class="pagination" showQuickJumper :defaultCurrent="defaultCurrent" :total="total" @change="onChange" />
             </template>
           </a-col>
+          <a-col :span="24" v-else>
+            <template>
+              <div style="min-height: 600px;background-color: white;">
+                <a-empty />
+              </div>
+            </template>
+          </a-col>
         </a-row>
+        <br><br><br><br>
      </a-col>
    <!-- 回到顶部 -->
    <a-back-top />
    <!-- 脚部公共组件 -->
    <footer-tag></footer-tag>
+   <login-tag ref="loginModal" @ok="handleOk" />
    </a-row>
  </div>
 </a-locale-provider>
@@ -70,65 +79,20 @@ import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import HeaderTag from '../../Header'
 import FooterTag from '../../Footer'
 import LeftTag from '../article/ArticleLeft'
+import LoginTag from '../form/LoginForm'
+import { loadAll,download } from '@/api/document'
+import { isLogin } from '@/api/login'
 
 export default {
  name: 'ResourceList',
  data () {
     return {
       zh_CN,
-      resources: [
-          {
-              id: 1,
-              title: 'json复杂数据解析demo1',
-              description: "一个解析较为复杂json数据的完整demo！其中添加了解析过程的思维导图。一个解析较为复杂json数据的完整demo！其中添加了解析过程的思维导图。一个解析较为复杂json数据的完整demo！其中添加了解析过程的思维导图。",
-              integral: 5,
-              time: '2020-03-01',
-              author: 'C_K',
-          },
-          {
-              id: 2,
-              title: 'json复杂数据解析demo2',
-              description: "一个解析较为复杂json数据的完整demo！其中添加了解析过程的思维导图。",
-              integral: 6,
-              time: '2020-03-01',
-              author: 'C_K',
-          },
-          {
-              id: 3,
-              title: 'json复杂数据解析demo3',
-              description: "一个解析较为复杂json数据的完整demo！其中添加了解析过程的思维导图。",
-              integral: 8,
-              time: '2020-03-01',
-              author: 'C_K',
-          },
-          {
-              id: 4,
-              title: 'json复杂数据解析demo4',
-              description: "一个解析较为复杂json数据的完整demo！其中添加了解析过程的思维导图。",
-              integral: 2,
-              time: '2020-03-01',
-              author: 'C_K',
-          },
-          {
-              id: 5,
-              title: 'json复杂数据解析demo5',
-              description: "一个解析较为复杂json数据的完整demo！其中添加了解析过程的思维导图。",
-              integral: 3,
-              time: '2020-03-01',
-              author: 'C_K',
-          },
-          {
-              id: 6,
-              title: 'json复杂数据解析demo6',
-              description: "一个解析较为复杂json数据的完整demo！其中添加了解析过程的思维导图。",
-              integral: 2,
-              time: '2020-03-01',
-              author: 'C_K',
-          },
-      ],
-      count: 10,
+      resources: [],
       defaultCurrent: 1,
-      total: 100,
+      total: 0,
+      self: false,
+      isLogin: false,
    };
  },
 
@@ -136,18 +100,85 @@ export default {
    HeaderTag,
    FooterTag,
    LeftTag,
+   LoginTag,
  },
 
  computed: {},
 
  methods: {
-   showBlogger() {
+   showBlogger(userId) {
       console.log(`点击前往博主博客`);
-      this.$router.push({path: '/article'});
+      let routeData = this.$router.resolve({
+          path: `/article`,
+          query: {"userId": userId},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
     },
    onChange(pageNumber) {
-      console.log(`翻页: ${pageNumber}`);
+      console.log(`翻页: ${pageNumber}`)
+      this.defaultCurrent = pageNumber
+      this.handleLoadAll()
    },
+   //表单回调函数
+    handleOk() {
+      this.$router.go(0)
+    },
+   //加载用户资源
+   handleLoadAll() {
+      let parameter = {
+        "pageSize": 10, 
+        "pageNo": this.defaultCurrent,
+        "userId": this.$route.query.userId,
+      }
+      loadAll(parameter).then( res => {
+        if(res.success === true) {
+          this.resources = res.data.content
+          this.total = res.data.totalElements
+        }
+      }).catch(err => {
+         console.log('加载用户资源异常',err.message)
+      })
+   },
+   //判断是否为当前用户的博客，是可以取消收藏文章，不是隐藏收藏文章按钮
+    handleIsSelf() {
+      let userId = this.$route.query.userId
+      isLogin().then(res => {
+        if (res.success === true) {
+          this.isLogin = true
+          //console.log("创建获取用户id:" + this.$route.query.userId)
+          if(res.data.id == userId) {
+            this.self = true
+          }else{
+            this.self = false
+          }
+        }else {
+          this.self = false
+        }
+      })
+    },
+    //下载资源
+    handleDownload(resource) {
+      if(!this.isLogin) {
+        //用户未登录，弹出登录表单
+        this.$refs.loginModal.login()
+        return
+      }
+      console.log("用户已登陆，可以下载资源")
+      download(resource.id).then( res => {
+        if(res.success === true) {
+          window.open(res.data, '_blank')
+        }else {
+          this.$message.error(res.data)
+        }
+      }).catch(err => {
+         console.log('下载用户资源异常',err.message)
+      })
+    },
+ },
+ created() {
+   this.handleLoadAll() //加载用户资源
+   this.handleIsSelf() //判断是否为当前用户博客
  }
 }
 

@@ -14,10 +14,11 @@ export function getComment (id) {
   })
 }
 
+
 // 增加评论
 export function addComment (parameter) {
   return axios({
-    url: api.comment,
+    url: `${api.comment}/normal/addComment`,
     method: 'post',
     data: parameter
   })
@@ -54,6 +55,15 @@ export function deleteCommentBatch (parameter) {
 export function getCommentList (parameter) {
   return axios({
     url: api.comment,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 加载文章评论
+export function getCommentByArticle (parameter) {
+  return axios({
+    url: `${api.comment}/normal/loadAll`,
     method: 'get',
     params: parameter
   })

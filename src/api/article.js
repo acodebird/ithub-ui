@@ -59,23 +59,6 @@ export function getArticleList (parameter) {
   })
 }
 
-// 写文章时上传图片
-export function uploadImg (parameter) {
-  return axios({
-    url: '/api/qiniu/uploadArticleImg',
-    method: 'post',
-    data: parameter
-  })
-}
-
-// 写文章时删除图片
-export function deleteImg (parameter) {
-  return axios({
-    url: '/api/qiniu/deleteArticleImg',
-    method: 'delete',
-    data: parameter
-  })
-}
 
 // 用户主页加载所有文章 parameter: { pageSize: 10, pageNo: 1 }
 export function loadAll (parameter) {

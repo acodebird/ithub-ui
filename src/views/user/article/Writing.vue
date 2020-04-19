@@ -45,7 +45,8 @@ import 'mavon-editor/dist/css/index.css'
 import FooterTag from '../../Footer'
 import PublishTag from '../form/PublishForm'
 import { isLogin } from '@/api/login'
-import { uploadImg,deleteImg,getArticle,addArticle,updateArticle } from '@/api/article'
+import { getArticle,addArticle,updateArticle } from '@/api/article'
+import { uploadFile,deleteFile } from '@/api/upload'
 
 export default {
  name: 'Writing',
@@ -118,7 +119,7 @@ export default {
         //return;
         let formdata = new FormData();
         formdata.append('file', $file)
-        uploadImg(formdata).then( res => {
+        uploadFile(formdata).then( res => {
             if (res.success === true) {
                 this.$refs.md.$img2Url(pos, res.data);
             }
@@ -128,7 +129,7 @@ export default {
     },
     //删除文章的图片
     $imgDel(pos) {
-      deleteImg({"url": pos[0]}).then( () => {
+      deleteFile({"url": pos[0]}).then( () => {
         this.$notification.success({message: '图片删除成功'})
       }).catch(err => {
         console.log('文章图片删除出现异常',err.message)

@@ -14,6 +14,15 @@ export function getFavorites (id) {
   })
 }
 
+// 判断用户是否收藏当前文章
+export function isCollect (parameter) {
+  return axios({
+    url: `${api.favorites}/isCollect`,
+    method: 'get',
+    params: parameter
+  })
+}
+
 // 增加收藏
 export function addFavorites (parameter) {
   return axios({
@@ -38,6 +47,15 @@ export function deleteFavorites (id) {
   return axios({
     url: `${api.favorites}/${id}`,
     method: 'delete'
+  })
+}
+
+// 根据用户和文章id删除收藏
+export function deleteFavoritesByUser (parameter) {
+  return axios({
+    url: `${api.favorites}`,
+    method: 'delete',
+    data: parameter
   })
 }
 

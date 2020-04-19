@@ -57,7 +57,7 @@
                       </div>
                       <div style="float: right">
                         <span>
-                          <a-icon @click="addLike" type="like" />{{content.approval}}
+                          <a-icon type="like" />{{content.approval}}
                         </span>
                         <a-divider type="vertical" />
                         <span>
@@ -211,10 +211,10 @@ export default {
       this.isActive = false
       console.log(`点击${key}`)
     },
-    addLike() {
-      console.log(this.loading)
-      console.log(`点赞加1`)
-    },
+    // addLike() {
+    //   console.log(this.loading)
+    //   console.log(`点赞加1`)
+    // },
     showBlogger(id) {
       console.log(`点击前往博主博客`);
       //this.$router.push({path: '/article'});

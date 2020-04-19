@@ -32,7 +32,7 @@
                     <div class="info">
                       <div style="float: left">
                         <span>
-                          <a v-if="content.user" @click="showBlogger">{{content.user.username}}</a>
+                          <a v-if="content.user" @click="showBlogger(content.user.id)">{{content.user.username}}</a>
                         </span>
                         <span>{{content.createTime}}</span>
                         <span  v-for="(keyword, index) in content.label!=null ? content.label.split(',') : ''" :key="index">
@@ -112,11 +112,11 @@ export default {
  computed: {},
 
  methods: {
-    showBlogger() {
+    showBlogger(userId) {
       console.log(`点击前往博主博客`)
       let routeData = this.$router.resolve({
           path: `/article`,
-          query: {"userId": this.$route.query.userId},
+          query: {"userId": userId},
           //params:{catId:params.catId}
       });
       window.open(routeData.href, '_blank');

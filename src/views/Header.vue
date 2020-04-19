@@ -45,7 +45,12 @@
           <a-dropdown v-show="isLogin">
             <a class="ant-dropdown-link" href="#"><a-avatar icon="user" :title="user.username" :src="user.avatar" /> </a>
             <a-menu slot="overlay">
-              <a-menu-item key="0"><a-icon type="schedule" />签到</a-menu-item>
+              <a-menu-item key="0" v-if="!isSign">
+                <a-icon type="schedule" @click="handleSign" />签到
+              </a-menu-item>
+              <a-menu-item key="0" disabled v-else>
+                <a-icon type="schedule" />已签到
+              </a-menu-item>
               <a-menu-item key="1" @click="handleProfile"><a-icon type="user" />个人信息</a-menu-item>
               <a-menu-item key="2" @click="handleArticle"><a-icon type="form" />我的博客</a-menu-item>
               <a-menu-item key="3"><a-icon type="setting" />管理博客</a-menu-item>
@@ -62,6 +67,7 @@
 <script>
 import { isLogin, logout } from '@/api/login'
 import { getUnread } from '@/api/notices'
+import { isSign, sign } from '@/api/user'
 
 const clickType = {
   0: {
@@ -122,6 +128,7 @@ export default {
         comment: '',
         system: '',
       },
+      isSign: false,
    };
  },
 
@@ -183,7 +190,8 @@ export default {
          this.user = {}
          this.isLogin = false
          this.$notification.success({message: "成功退出登录"})
-         this.$router.push({path:'/'})
+         //this.$router.push({path:'/'})
+         this.$router.go(0)
        }
      }).catch(ex => {
        this.$message.error(`退出登录失败`)
@@ -211,6 +219,16 @@ export default {
       console.log('获取未读消息数量出错',ex.message)
     })
    },
+   handleSign() {
+     if(!this.isSign) {
+       sign().then(res => {
+         if(res.success === true) {
+           this.$message.success(`${res.data}`)
+           this.isSign = true
+         }
+       })
+     }
+   }
  },
 
  created (){
@@ -227,6 +245,17 @@ export default {
       }
     }).catch(ex => {
       console.log('isLogin error',ex.message)
+    })
+
+    isSign().then(res => {
+      if(res.success === true) {
+        this.isSign = true
+        console.log("今天已经签到")
+      }else {
+        this.isSign = false
+      }
+    }).catch(err => {
+      console.log('判断用户是否签到出错',err.message)
     })
     
   },

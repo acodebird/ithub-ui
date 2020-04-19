@@ -25,9 +25,15 @@
                           <a href="#" @click="toResourceList">Ta的资源></a>
                         </a-row>
                       </a-col>
-                      <a-col :span="6" style="height:100%">
-                        <a-row type="flex" align="middle" style="height: 100%;">
-                          <a-button type="danger" size="small">关注</a-button>
+                      <a-col :span="6" style="height:100%" v-if="!isLogin">
+                        <a-row type="flex" align="middle" style="height: 100%;" v-if="!self">
+                          <a-button type="danger" size="small" @click="handleFocus">关注</a-button>
+                        </a-row>
+                      </a-col>
+                      <a-col :span="6" style="height:100%" v-else>
+                        <a-row type="flex" align="middle" style="height: 100%;" v-if="!self">
+                          <a-button type="danger" size="small" v-if="!isFocus" @click="handleFocus">关注</a-button>
+                          <a-button type="danger" size="small" v-else @click="handleCancelFocus">取消关注</a-button>
                         </a-row>
                       </a-col>
                     </a-row>
@@ -142,7 +148,6 @@
                     <template v-if="columns.length != 0">
                       <div class="category_content" v-for="(column, index) in columns" :key="index">
                         <a @click="showColumnDetail(column.id)">
-                          <router-link to="/article/category">
                           <a-row type="flex" align="middle" justify="center" class="category_content_item">
                             <a-col :span="20">
                               <a-icon type="folder" style="fontSize:20px" />
@@ -153,7 +158,6 @@
                               <a-row type="flex" justify="end">{{column.count}}篇</a-row>
                             </a-col>
                           </a-row>
-                          </router-link>
                         </a>
                       </div>
                     </template>
@@ -168,6 +172,7 @@
          </a-row>
          <br><br><br><br>
        </div>
+     <login-tag ref="loginModal" @ok="handleOk" />
      </a-col>
 </a-locale-provider>
 </template>
@@ -177,6 +182,9 @@ import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
 import { loadByUser } from '@/api/article'
 import { loadAllByUser } from '@/api/column'
 import { loadInfo } from '@/api/user'
+import { isLogin } from '@/api/login'
+import { isFocus, addFollow, deleteFollow } from '@/api/follow'
+import LoginTag from '../form/LoginForm'
 
 const clickType = {
   0: {
@@ -210,21 +218,26 @@ export default {
       latestArticles: [],//用户最新文章
       columns: [], //用户专栏
       userInfo: {}, //用户信息
+      self: false,
+      isLogin: false,
+      isFocus: false, 
    };
  },
  props: ['userId'],
 
- computed: {},
+ components: {
+   LoginTag,
+ },
 
  methods: {
     showBlogDetail(id) {
       console.log(`展示博客${id}详情`);
       this.$router.push({path: '/article/detail',query: {"id": id}});
     },
-    showColumnDetail(e) {
-      console.log(`展示专栏${e}详情`);
+    showColumnDetail(categoryId) {
+      console.log(`展示专栏${categoryId}详情`);
       console.log("获取到用户id"+this.userId)
-      //this.$router.push({path: '/article/category'});
+      this.$router.push({path: '/article/category',query: {"userId": this.userId,"categoryId": categoryId}});
     },
     handleClick(type) {
       /* 跳转到关注、收藏、资源等页面 */
@@ -233,7 +246,12 @@ export default {
     },
     toResourceList() {
       console.log(`跳转到资源列表页面`);
-      this.$router.push({path: '/uc/resource-list'});
+      this.$router.push({path: `/uc/resource-list`,query: {"userId": this.userId}});
+      //this.$router.push({path: '/uc/resource-list'});
+    },
+    //表单回调函数
+    handleOk() {
+      this.$router.go(0)
     },
     //加载用户热门文章
     handleLoadHotByUser() {
@@ -248,7 +266,7 @@ export default {
           this.popularArticles = res.data.content
         }
       }).catch(err => {
-         console.log('加载用户热门文章异常',ex.message)
+         console.log('加载用户热门文章异常',err.message)
       })
     },
     //加载用户最新文章
@@ -264,7 +282,7 @@ export default {
           this.latestArticles = res.data.content
         }
       }).catch(err => {
-         console.log('加载用户最新文章异常',ex.message)
+         console.log('加载用户最新文章异常',err.message)
       })
     },
     //记载用户所有专栏
@@ -287,6 +305,74 @@ export default {
           console.log('加载用户专栏出错',err.message)
       })
     },
+    //判断是否为当前用户的博客，是可以取消收藏文章，不是隐藏收藏文章按钮
+    handleIsSelf() {
+      let userId = this.$route.query.userId
+      isLogin().then(res => {
+        if (res.success === true) {
+          this.isLogin = true
+          this.handleIsFocus()
+          //console.log("创建获取用户id:" + this.$route.query.userId)
+          if(res.data.id == userId) {
+            this.self = true
+          }else{
+            this.self = false
+          }
+        }else {
+          this.self = false
+        }
+      })
+    },
+    //判断用户是否被关注
+    handleIsFocus() {
+      isFocus(this.userId).then(res => {
+        if (res.success === true) {
+          this.isFocus = true
+        }else {
+          this.isFocus = false
+        }
+      })
+    },
+    //关注用户
+    handleFocus() {
+      console.log("关注当前博客" + this.userId)
+      if(!this.isLogin) {
+        //用户未登录，弹出登录表单
+        this.$refs.loginModal.login()
+        return
+      }
+      console.log("用户已登陆，可以关注用户")
+      addFollow(this.userId).then(res => {
+        if(res.success === true) {
+          this.isFocus = true
+          this.$router.go(0)
+        }else {
+          this.isFocus = false
+        }
+      }).catch(err => {
+        console.log('关注用户出错',err.message)
+      })
+    },
+    //取消关注
+    handleCancelFocus() {
+      console.log("取消关注当前博客" + this.userId)
+      if(!this.isLogin) {
+        //用户未登录，弹出登录表单
+        this.$refs.loginModal.login()
+        return
+      }
+      console.log("用户已登陆，可以取消关注用户")
+      deleteFollow(this.userId).then(res => {
+        if(res.success === true) {
+          this.isFocus = false
+          this.$router.go(0)
+        }else {
+          this.isFocus = true
+        }
+      }).catch(err => {
+        console.log('取消关注用户出错',err.message)
+      })
+    },
   },
   created() {
     console.log("获取到用户id:" + this.userId)
@@ -294,8 +380,20 @@ export default {
     this.handleLoadNewByUser() //加载用户最新文章
     this.handleLoadColumnByUser() //加载用户专栏
     this.handleLoadInfo() //加载用户信息
+    this.handleIsSelf() //判断是否为当前用户博客
 
-  }
+  },
+//   watch: {
+//   '$route' (to, from) {
+//     if (to.path === '/article') {
+//      this.handleLoadHotByUser() //加载用户热门文章
+//       this.handleLoadNewByUser() //加载用户最新文章
+//       this.handleLoadColumnByUser() //加载用户专栏
+//       this.handleLoadInfo() //加载用户信息
+//       this.handleIsSelf() //判断是否为当前用户博客
+//     }
+//   }
+// }
 }
 
 </script>

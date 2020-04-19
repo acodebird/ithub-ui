@@ -9,7 +9,7 @@
          @cancel="handleCancel"     this.visible=false
     -->
     <a-modal
-      title="编辑专栏"
+      title="编辑资源"
       :width="640"
       :visible="visible"
       :confirmLoading="confirmLoading"

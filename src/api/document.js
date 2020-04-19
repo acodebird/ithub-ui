@@ -58,3 +58,20 @@ export function getDocumentList (parameter) {
     params: parameter
   })
 }
+
+// 加载所有资源/用户资源 parameter: { pageSize: 10, pageNo: 1 }
+export function loadAll (parameter) {
+  return axios({
+    url: `${api.document}/normal`,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 下载资源
+export function download (id) {
+  return axios({
+    url: `${api.document}/normal/download/${id}`,
+    method: 'get',
+  })
+}

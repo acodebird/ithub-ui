@@ -11,8 +11,8 @@
           </a-row>
           <a-row class="msg" v-for="like in likes" :key="like.id">
             <a-row>
-              <a-col :span="15" class="msg_title" v-if="like.status == 'UNREAD'"><a-icon type="sound" style="color: red;" />&nbsp;<b>{{like.title}}</b>点赞了你的文章点赞了你的文章点赞了你的文章点赞了你的文章点赞了你的文章点赞了你的文章</a-col>
-              <a-col :span="15" class="msg_title" v-else><a-icon type="sound"/>&nbsp;<b>{{like.title}}</b>点赞了你的文章点赞了你的文章点赞了你的文章点赞了你的文章点赞了你的文章</a-col>
+              <a-col :span="15" class="msg_title" v-if="like.status == 'UNREAD'"><a-icon type="sound" style="color: red;" />&nbsp;<b>{{like.title}}</b>点赞了你的文章</a-col>
+              <a-col :span="15" class="msg_title" v-else><a-icon type="sound"/>&nbsp;<b>{{like.title}}</b>点赞了你的文章</a-col>
               <a-col :span="6" class="msg_time">{{like.createTime}}</a-col>
               <a-col :span="3" class="msg_operation">
                 <a-button @click="handleDeleteOne(like.id)" size="small" type="danger" title="删除消息"> 
@@ -23,7 +23,7 @@
             <a-row>
               <a-col>
                 <div class="msg_content" @click="handleClickMsg(like)">
-                    <a @click="handleShowBlog(like.articleId)">{{like.msg}}</a>
+                    <a @click="showBlogDetail(like.articleId)">{{like.msg}}</a>
                 </div>
               </a-col>
             </a-row>
@@ -117,9 +117,15 @@ export default {
       console.log('清除单挑消息异常',ex.message)
     })
    },
-   handleShowBlog(id) {
-       console.log(`查看博客详情${id}`);
-   },
+   showBlogDetail(id) {
+      console.log(`展示博客${id}详情`);
+      let routeData = this.$router.resolve({
+          path: `/article/detail`,
+          query: {"id": id},
+          //params:{catId:params.catId}
+      });
+      window.open(routeData.href, '_blank');
+    },
    onChange(pageNumber) {
      console.log(`翻页: ${pageNumber}`);
      this.defaultCurrent = pageNumber
