@@ -14,16 +14,16 @@
                             <a-menu 
                             mode="inline" 
                             @select="handleSelect"
-                            :defaultSelectedKeys="['1']"
+                            :defaultSelectedKeys="[key]"
                             :defaultOpenKeys="['sub1']"
                             >
                             <a-sub-menu key="sub1">
                                 <span slot="title"><a-icon type="dashboard" /><span>博客管理</span></span>
-                                <a-menu-item key="1"><a-icon type="file-text" />文章管理</a-menu-item>
-                                <a-menu-item key="2"><a-icon type="message" />评论管理</a-menu-item>
-                                <a-menu-item key="3"><a-icon type="folder" />专栏管理</a-menu-item>
+                                <a-menu-item key="/manage/article"><a-icon type="file-text" />文章管理</a-menu-item>
+                                <a-menu-item key="/manage/comment"><a-icon type="message" />评论管理</a-menu-item>
+                                <a-menu-item key="/manage/category"><a-icon type="folder" />专栏管理</a-menu-item>
                             </a-sub-menu>
-                            <a-menu-item key="4"><a-icon type="appstore" />资源管理</a-menu-item>
+                            <a-menu-item key="/manage/resource"><a-icon type="appstore" />资源管理</a-menu-item>
                             </a-menu>
                         </div>
                     </a-col>
@@ -54,6 +54,7 @@ export default {
  data () {
     return {
         zh_CN,
+        key: this.$route.path,
    };
  },
 
@@ -67,17 +68,21 @@ export default {
  methods: {
      handleSelect: function(e) {
      switch(e.key) {
-      case '1':
-        this.$router.push('/manage/article')
+      case '/manage/article':
+        //this.$router.push('/manage/article')
+        this.$router.push({path: '/manage',query: {"userId": this.$route.query.userId}});
         break;
-      case '2':
-        this.$router.push('/manage/comment')
+      case '/manage/comment':
+        //this.$router.push('/manage/comment')
+        this.$router.push({path: '/manage/comment',query: {"userId": this.$route.query.userId}});
         break;
-      case '3':
-        this.$router.push('/manage/category')
+      case '/manage/category':
+        //this.$router.push('/manage/category')
+        this.$router.push({path: '/manage/category',query: {"userId": this.$route.query.userId}});
         break;
-      case '4':
-        this.$router.push('/manage/resource')
+      case '/manage/resource':
+        //this.$router.push('/manage/resource')
+        this.$router.push({path: '/manage/resource',query: {"userId": this.$route.query.userId}});
         break;
      }
    },

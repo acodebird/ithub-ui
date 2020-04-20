@@ -170,7 +170,6 @@ export default {
       }
       if(this.id != undefined) {
         console.log("编辑文章后发表文章")
-        debugger
         let edit = {
           "id": this.id,
         }

@@ -86,3 +86,28 @@ export function loadByUser (parameter) {
     params: parameter
   })
 }
+
+// 加载用户已发布文章和草稿的数量
+export function loadCount () {
+  return axios({
+    url: `${api.article}/normal/loadCount`,
+    method: 'get',
+  })
+}
+
+// 普通用户删除文章
+export function deleteByNormal (id) {
+  return axios({
+    url: `${api.article}/normal/${id}`,
+    method: 'delete',
+  })
+}
+
+// 普通用户批量删除文章
+export function deleteArticleBatchByNormal (parameter) {
+  return axios({
+    url: `${api.article}/normal`,
+    method: 'delete',
+    data: parameter
+  })
+}

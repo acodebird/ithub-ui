@@ -28,6 +28,8 @@
 </template>
 
 <script>
+import { addComment } from '@/api/comment'
+
 export default {
  name: 'QuikReply',
  data () {
@@ -43,7 +45,8 @@ export default {
       visible: false,
       confirmLoading: false,
       form: this.$form.createForm(this),
-      cid: undefined,
+      id: undefined,
+      articleId: undefined,
    };
  },
 
@@ -52,9 +55,11 @@ export default {
  computed: {},
 
  methods: {
-    reply(cid) {
+    reply(id,articleId) {
+      this.form.resetFields()
       this.visible = true;
-      this.cid = cid;
+      this.id = id
+      this.articleId = articleId
     },
     handleCancel() {
       //关闭快速回复表单
@@ -67,11 +72,28 @@ export default {
       this.confirmLoading = true;
       validateFields((errors, values) => {
         if (!errors) {
+          // let parameter = {
+          //   'content': values.content,
+          // };
+          console.log(`快速回复评论${this.id}:${this.articleId}:${values.content}`);
           let parameter = {
-            'content': values.content,
-          };
-          console.log(`快速回复评论${this.cid}:${parameter.content}`);
+            "articleId": this.articleId,
+            "replyId": this.id,
+            "content": values.content
+          }
+          addComment(parameter).then( res => {
+            if(res.success === true) {
+                this.visible = false
+                this.confirmLoading = false
+                this.$emit('ok', values)
+            }
+            this.confirmLoading = false
+          }).catch(err => {
+            console.log("快速回复评论异常:"+ err.message)
+            this.confirmLoading = false
+          })
         }
+        this.confirmLoading = false
       })
     },
  }

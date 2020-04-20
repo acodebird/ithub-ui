@@ -285,7 +285,7 @@ export default {
          console.log('加载用户最新文章异常',err.message)
       })
     },
-    //记载用户所有专栏
+    //加载用户所有专栏
     handleLoadColumnByUser() {
       loadAllByUser(this.userId).then( res => {
           if (res.success === true) {
@@ -373,9 +373,24 @@ export default {
         console.log('取消关注用户出错',err.message)
       })
     },
+    //判断是否登录函数
+    handleIsLogin() {
+         //判断用户是否登录
+        isLogin().then(res => {
+            if (res.success === false) {
+                this.$router.push({path: '/login'})
+                return
+            }else {
+                
+            }
+        }).catch(ex => {
+            console.log('isLogin error',ex.message)
+        })
+    },
   },
   created() {
     console.log("获取到用户id:" + this.userId)
+    this.handleIsLogin()
     this.handleLoadHotByUser() //加载用户热门文章
     this.handleLoadNewByUser() //加载用户最新文章
     this.handleLoadColumnByUser() //加载用户专栏

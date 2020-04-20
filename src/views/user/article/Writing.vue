@@ -218,17 +218,17 @@ export default {
     //加载编辑的文章信息
     handleLoadArticle() {
         getArticle(this.id).then(res => {
-       if(res.success === true) {
-         this.title = res.data.title
-         this.content = res.data.content
-         this.html = res.data.html
-         this.tags = res.data.label.split(",")
-         this.section = res.data.column.name
-         this.handleSuffix() //计算文章title剩余字数
-       }
-     }).catch(ex => {
-       console.log('获取单个文章信息出现异常',err.message)
-     })
+            if(res.success === true) {
+                this.title = res.data.title
+                this.content = res.data.content
+                this.html = res.data.html
+                this.tags = res.data.label ? res.data.label.split(",") : []
+                this.section = res.data.column.name
+                this.handleSuffix() //计算文章title剩余字数
+            }
+        }).catch(err => {
+            console.log('获取单个文章信息出现异常',err.message)
+        })
     },
     //浏览器页面离开或刷新事件
     beforeunloadHandler(e) {

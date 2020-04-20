@@ -19,8 +19,9 @@
       <a-spin :spinning="confirmLoading">
         <a-form :form="form">
           <a-form-item label="专栏名称" :labelCol="labelCol" :wrapperCol="wrapperCol">
-            <a-textarea placeholder="请输入专栏名称" v-decorator="['cname',
-            {rules: [{required: true, message: '请输入专栏名称'}]}]" autosize/>
+            <a-input placeholder="请输入专栏名称" v-decorator="['name',
+            {rules: [{required: true, message: '请输入专栏名称'}]}]">
+            </a-input>
           </a-form-item>
         </a-form>
       </a-spin>
@@ -30,7 +31,8 @@
 </template>
 
 <script>
-import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN';
+import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN'
+import { updateColumn } from '@/api/column'
 
 export default {
  name: 'EditCategory',
@@ -48,7 +50,7 @@ export default {
       visible: false,
       confirmLoading: false,
       form: this.$form.createForm(this),
-      cid: undefined,
+      id: undefined,
    };
  },
 
@@ -57,9 +59,9 @@ export default {
  computed: {},
 
  methods: {
-    edit(cid) {
+    edit(id) {
       this.visible = true;
-      this.cid = cid;
+      this.id = id;
     },
     handleCancel() {
       //关闭快速回复表单
@@ -73,9 +75,27 @@ export default {
       validateFields((errors, values) => {
         if (!errors) {
           let parameter = {
-            'cname': values.cname,
-          };
-          console.log(`编辑专栏${this.cid}:${parameter.cname}`);
+            'id': this.id,
+            'name': values.name,
+          }
+          console.log(`编辑专栏${parameter.id}:${parameter.name}`)
+          updateColumn(parameter).then( res => {
+            if(res.success === true) {
+              this.visible = false
+              this.confirmLoading = false
+              this.$emit('ok', values)
+              this.$message.success(`编辑专栏成功`)
+            }else {
+              this.confirmLoading = false
+              this.$message.error(`编辑专栏失败`)
+            }
+            this.confirmLoading = false
+          }).catch( err => {
+            this.confirmLoading = false
+            console.log("编辑专栏异常" + err.message)
+          })
+        }else {
+          this.confirmLoading = false
         }
       })
     },

@@ -41,7 +41,7 @@
                   <a-icon type="tag" theme="filled"/>{{tag}}
                 </span>
               </div>
-              <div>
+              <div v-else>
                 <span>标签：</span>
                 <span>
                   空空如也
@@ -396,7 +396,6 @@ export default {
        this.$message.warning('请输入评论内容')
        return;
      }
-     debugger
      let paramter = {
        "articleId": this.id,
        "replyId": this.replyId,

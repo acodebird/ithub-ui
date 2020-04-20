@@ -97,7 +97,8 @@ export default {
           login( {...values} ).then(res => {
             if(res.success === true) {
               this.visible = false;
-              this.$notification.success({message: res.data})
+              //this.$notification.success({message: res.data})
+              this.$message.success(`${res.data}`)
               this.$emit('ok', values)
               this.$router.go(0)
             }else{

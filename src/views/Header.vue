@@ -53,9 +53,8 @@
               </a-menu-item>
               <a-menu-item key="1" @click="handleProfile"><a-icon type="user" />个人信息</a-menu-item>
               <a-menu-item key="2" @click="handleArticle"><a-icon type="form" />我的博客</a-menu-item>
-              <a-menu-item key="3"><a-icon type="setting" />管理博客</a-menu-item>
-              <a-menu-item key="4"><a-icon type="download" />我的资源</a-menu-item>
-              <a-menu-item key="5" @click="handleLogout"><a-icon type="logout" />退出</a-menu-item>
+              <a-menu-item key="3" @click="handleManage"><a-icon type="setting" />管理博客</a-menu-item>
+              <a-menu-item key="4" @click="handleLogout"><a-icon type="logout" />退出</a-menu-item>
             </a-menu>
           </a-dropdown>
         </div>
@@ -189,8 +188,10 @@ export default {
        if(res.success === true) {
          this.user = {}
          this.isLogin = false
-         this.$notification.success({message: "成功退出登录"})
+         this.$message.success(`成功退出登录`)
          //this.$router.push({path:'/'})
+         this.$router.go(0)
+       }else {
          this.$router.go(0)
        }
      }).catch(ex => {
@@ -205,6 +206,10 @@ export default {
    handleArticle() {
      this.$router.push({path: '/article',query: {"userId": this.user.id}});
    },
+   //管理博客页面
+   handleManage() {
+     this.$router.push({path: '/manage',query: {"userId": this.user.id}});
+   },
    //加载未读消息数量
    handleUnread() {
      getUnread().then(res => {
@@ -214,17 +219,38 @@ export default {
         this.noticesUnread.focus = res.data.focus > 0 ? res.data.focus : ''
         this.noticesUnread.comment = res.data.comment > 0 ? res.data.comment : ''
         this.noticesUnread.system = res.data.system > 0 ? res.data.system : ''
+      }else {
+        this.$router.go(0)
       }
     }).catch(ex => {
       console.log('获取未读消息数量出错',ex.message)
     })
    },
+   //判断用户是否签到函数
+   handleIsSign() {
+     isSign().then(res => {
+        if(res.success === true) {
+          this.isSign = true
+          console.log("今天已经签到")
+        }else if(res.data === '今天未签到'){
+          console.log("今天未签到")
+        }else {
+          this.$router.go(0)
+        }
+      }).catch(err => {
+        console.log('判断用户是否签到出错',err.message)
+      })
+   },
+   //用户签到函数
    handleSign() {
      if(!this.isSign) {
+       console.log("签到")
        sign().then(res => {
          if(res.success === true) {
            this.$message.success(`${res.data}`)
            this.isSign = true
+         }else{
+           this.$router.go(0)
          }
        })
      }
@@ -241,23 +267,13 @@ export default {
         this.isLogin = true
         console.log("加载未读消息数量")
         this.handleUnread()
+        this.handleIsSign()
         return
       }
     }).catch(ex => {
       console.log('isLogin error',ex.message)
     })
 
-    isSign().then(res => {
-      if(res.success === true) {
-        this.isSign = true
-        console.log("今天已经签到")
-      }else {
-        this.isSign = false
-      }
-    }).catch(err => {
-      console.log('判断用户是否签到出错',err.message)
-    })
-    
   },
 }
 

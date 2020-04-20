@@ -91,7 +91,8 @@ export default {
         if (!err) {
           login( {...values} ).then(res => {
             if(res.success === true) {
-              this.$notification.success({message: res.data})
+              this.$message.success(`${res.data}`)
+              //this.$notification.success({message: res.data})
               this.$router.push({path:'/'})
             }else{
               this.$message.error(`${res.data}`)

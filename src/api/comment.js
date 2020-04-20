@@ -68,3 +68,20 @@ export function getCommentByArticle (parameter) {
     params: parameter
   })
 }
+
+// 加载用户文章评论/用户发表的评论
+export function loadArticleComment (parameter) {
+  return axios({
+    url: `${api.comment}/normal/loadArticleComment`,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 普通用户删除评论
+export function deleteCommentByNormal (id) {
+  return axios({
+    url: `${api.comment}/normal/${id}`,
+    method: 'delete'
+  })
+}

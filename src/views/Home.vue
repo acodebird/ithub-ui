@@ -256,7 +256,7 @@ export default {
           console.log(`数据加载完成`)
         }
       }).catch(err => {
-         console.log('加载所有文章异常',ex.message)
+         console.log('加载所有文章异常',err.message)
       })
     },
     loadAll() {
@@ -271,7 +271,7 @@ export default {
           }
         }
       }).catch(err => {
-         console.log('加载所有文章异常',ex.message)
+         console.log('加载所有文章异常',err.message)
       })
     },
     loadHot() {
@@ -280,7 +280,7 @@ export default {
           this.recommendedHots = res.data.content
         }
       }).catch(err => {
-         console.log('加载热门推荐异常',ex.message)
+         console.log('加载热门推荐异常',err.message)
       })
     },
     scrollBottom() {

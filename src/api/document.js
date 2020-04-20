@@ -68,10 +68,27 @@ export function loadAll (parameter) {
   })
 }
 
-// 下载资源
+// 用户下载资源
 export function download (id) {
   return axios({
     url: `${api.document}/normal/download/${id}`,
     method: 'get',
+  })
+}
+
+// 用户编辑文件 // or (id, parameter)
+export function editDocument (parameter) {
+  return axios({
+    url: `${api.document}/normal/${parameter.id}`, // or `${api.document}/${id}`
+    method: 'put',
+    data: parameter
+  })
+}
+
+// 用户取消审核中的资源
+export function cancelDocument (id) {
+  return axios({
+    url: `${api.document}/normal/${id}`,
+    method: 'delete'
   })
 }

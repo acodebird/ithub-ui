@@ -69,7 +69,7 @@
                     <div class="info">
                       <div style="float: left">
                         <span>
-                          <a @click="showBlogger">上传作者：{{resource.user.username}}</a>
+                          上传作者：<a @click="showBlogger(resource.user.id)">{{resource.user.username}}</a>
                         </span>
                         <span>上传时间：{{resource.uploadTime}}</span>
                         <span>所需积分：{{resource.integral}}</span>
@@ -171,9 +171,9 @@ export default {
       this.query = value
       this.handleLoadAll()
     },
-    showBlogger() {
+    showBlogger(id) {
       console.log(`点击前往博主博客`);
-      this.$router.push({path: '/article'});
+      this.$router.push({path: '/article',query: {"userId": id}});
     },
     handleLogin() {
       console.log(`去登陆`);

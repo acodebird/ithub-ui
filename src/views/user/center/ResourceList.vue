@@ -51,7 +51,7 @@
               </div>
             </template>
             <template>
-              <a-pagination class="pagination" showQuickJumper :defaultCurrent="defaultCurrent" :total="total" @change="onChange" />
+              <a-pagination class="pagination" showQuickJumper :defaultPageSize="defaultPageSize" :defaultCurrent="defaultCurrent" :total="total" @change="onChange" />
             </template>
           </a-col>
           <a-col :span="24" v-else>
@@ -89,6 +89,7 @@ export default {
     return {
       zh_CN,
       resources: [],
+      defaultPageSize: 3,
       defaultCurrent: 1,
       total: 0,
       self: false,
@@ -127,7 +128,7 @@ export default {
    //加载用户资源
    handleLoadAll() {
       let parameter = {
-        "pageSize": 10, 
+        "pageSize": this.defaultPageSize, 
         "pageNo": this.defaultCurrent,
         "userId": this.$route.query.userId,
       }

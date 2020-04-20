@@ -475,7 +475,8 @@ export default {
                   }
                 }, 1000)
               }
-              this.$notification.success({message: res.data})
+              this.$message.success(`${res.data}`)
+              //this.$notification.success({message: res.data})
             }else{
               this.$message.error(`${res.data}`)
             }
