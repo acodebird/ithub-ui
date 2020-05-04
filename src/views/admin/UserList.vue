@@ -317,6 +317,7 @@ export default {
       this.$refs.addModal.add()
     },
     loadPermission() {
+      this.handleIsLogin()
         loadPermissionByUserId({"id": this.user.id}).then(res => {
           if(res.success === true) {
             this.permissions = res.data
@@ -343,7 +344,19 @@ export default {
       console.log("重置查询内容")
       this.form.resetFields();
       this.$refs.table.refresh(true)
-    }
+    },
+    handleIsLogin() {
+       //判断用户是否登录
+        isLogin().then(res => {
+          if (res.success === true) {
+            this.user=res.data
+            return
+          }
+          //this.$router.push('/admin/login')
+        }).catch(ex => {
+          console.log('isLogin error',ex.message)
+        })
+    },
 
  },
 

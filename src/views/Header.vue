@@ -45,8 +45,8 @@
           <a-dropdown v-show="isLogin">
             <a class="ant-dropdown-link" href="#"><a-avatar icon="user" :title="user.username" :src="user.avatar" /> </a>
             <a-menu slot="overlay">
-              <a-menu-item key="0" v-if="!isSign">
-                <a-icon type="schedule" @click="handleSign" />签到
+              <a-menu-item key="0" v-if="!isSign" @click="handleSign">
+                <a-icon type="schedule" />签到
               </a-menu-item>
               <a-menu-item key="0" disabled v-else>
                 <a-icon type="schedule" />已签到
@@ -243,18 +243,16 @@ export default {
    },
    //用户签到函数
    handleSign() {
-     if(!this.isSign) {
-       console.log("签到")
-       sign().then(res => {
-         if(res.success === true) {
-           this.$message.success(`${res.data}`)
-           this.isSign = true
-         }else{
-           this.$router.go(0)
-         }
-       })
-     }
-   }
+    console.log("签到")
+    sign().then(res => {
+      if(res.success === true) {
+        this.$message.success(`${res.data}`)
+        this.isSign = true
+      }else{
+        this.$router.go(0)
+      }
+    })
+  }
  },
 
  created (){

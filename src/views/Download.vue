@@ -216,7 +216,8 @@ export default {
         "pageNo": this.defaultCurrent,
         "type": this.select,
         "title": this.query,
-        "description": this.query
+        "description": this.query,
+        "status": "PASS",
       }
       loadAll(parameter).then( res => {
         if(res.success === true) {

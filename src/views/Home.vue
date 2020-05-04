@@ -387,7 +387,8 @@ export default {
   }
   .category_content_item {
     width: 100%;
-    height: 50px;
+    padding: 5px;
+    /* height: 50px; */
   }
   .category_content a {
     color: #4f4f4f;

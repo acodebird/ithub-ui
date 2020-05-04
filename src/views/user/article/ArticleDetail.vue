@@ -20,8 +20,8 @@
           <p class="info_box">
             <a-col :span="24">
               <span class="time">发布时间：{{article.createTime}}</span> 
-              <span v-if="article.user">作者：<a @click="handleShowBloger(article.user.id)">{{article.user.username}}</a></span>
-              <span v-if ="article.status == 'NORMAL'">专栏：<a @click="handleShowColumn(article)">{{article.column.name}}</a></span>
+              <span v-if="article.user">作者：<a href="javascript:void(0);">{{article.user.username}}</a></span>
+              <span v-if ="article.status == 'NORMAL'">专栏：<a href="javascript:void(0);">{{article.column.name}}</a></span>
 							<span>阅读（{{article.click}}）</span>
             </a-col>
           </p>
@@ -112,7 +112,7 @@
                 </a-comment>
               </a-list-item>
             </a-list>
-              <template>
+              <template v-if="comments.length">
                 <a-pagination class="pagination" showQuickJumper :defaultCurrent="defaultCurrent" :total="total" @change="onChange" />
               </template>
           </div>

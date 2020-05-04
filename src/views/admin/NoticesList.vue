@@ -331,6 +331,7 @@ export default {
       this.$refs.table.refresh()
     },
     loadPermission() {
+      this.handleIsLogin()
         loadPermissionByUserId({"id": this.user.id}).then(res => {
           if(res.success === true) {
             this.permissions = res.data
@@ -358,7 +359,18 @@ export default {
       this.form.resetFields();
       this.$refs.table.refresh(true)
     },
-    
+    handleIsLogin() {
+       //判断用户是否登录
+        isLogin().then(res => {
+          if (res.success === true) {
+            this.user=res.data
+            return
+          }
+          //this.$router.push('/admin/login')
+        }).catch(ex => {
+          console.log('isLogin error',ex.message)
+        })
+    },
 
  },
 

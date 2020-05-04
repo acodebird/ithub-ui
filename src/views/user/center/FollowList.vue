@@ -41,7 +41,7 @@
                     <a-col :span="16" v-if="self">
                         <a-row type="flex" justify="end">
                             <a-col>
-                                <a-button type="danger" @click="handleCancelFocus(follow.id)">取消关注</a-button>
+                                <a-button type="danger" @click="handleCancelFocus(follow.follower.id)">取消关注</a-button>
                             </a-col>
                         </a-row>
                     </a-col>

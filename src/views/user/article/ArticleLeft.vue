@@ -150,7 +150,7 @@
                         <a @click="showColumnDetail(column.id)">
                           <a-row type="flex" align="middle" justify="center" class="category_content_item">
                             <a-col :span="20">
-                              <a-icon type="folder" style="fontSize:20px" />
+                              <a-icon type="folder" style="fontSize:28px" />
                               <a-divider type="vertical" />
                               {{column.name}}
                             </a-col>
@@ -390,7 +390,7 @@ export default {
   },
   created() {
     console.log("获取到用户id:" + this.userId)
-    this.handleIsLogin()
+    //this.handleIsLogin()
     this.handleLoadHotByUser() //加载用户热门文章
     this.handleLoadNewByUser() //加载用户最新文章
     this.handleLoadColumnByUser() //加载用户专栏
@@ -398,17 +398,17 @@ export default {
     this.handleIsSelf() //判断是否为当前用户博客
 
   },
-//   watch: {
-//   '$route' (to, from) {
-//     if (to.path === '/article') {
-//      this.handleLoadHotByUser() //加载用户热门文章
-//       this.handleLoadNewByUser() //加载用户最新文章
-//       this.handleLoadColumnByUser() //加载用户专栏
-//       this.handleLoadInfo() //加载用户信息
-//       this.handleIsSelf() //判断是否为当前用户博客
-//     }
-//   }
-// }
+  watch: {
+  '$route' (to, from) {
+    if (to.path === '/article') {
+     this.handleLoadHotByUser() //加载用户热门文章
+      this.handleLoadNewByUser() //加载用户最新文章
+      this.handleLoadColumnByUser() //加载用户专栏
+      this.handleLoadInfo() //加载用户信息
+      this.handleIsSelf() //判断是否为当前用户博客
+    }
+  }
+}
 }
 
 </script>
@@ -453,7 +453,10 @@ export default {
   }
   .category_content_item {
     width: 100%;
-    height: 50px;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    /* height: 50px; */
   }
   .category_content a {
     color: #4f4f4f;

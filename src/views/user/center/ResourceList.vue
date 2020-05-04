@@ -131,6 +131,7 @@ export default {
         "pageSize": this.defaultPageSize, 
         "pageNo": this.defaultCurrent,
         "userId": this.$route.query.userId,
+        "status": "PASS",
       }
       loadAll(parameter).then( res => {
         if(res.success === true) {

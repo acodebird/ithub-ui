@@ -105,91 +105,7 @@ export default {
     return {
       zh_CN,
       column: {},
-      contents: [
-        // {
-        //   id: 1,
-        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-        //   author: 'ACodeBird',
-        //   time: '2019-08-31 15:18:31',
-        //   keywords: ['aop','spring','java'],
-        //   like: 666,
-        //   eye: 888,
-        //   message: 911,
-        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-        // },
-        // {
-        //   id: 1,
-        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-        //   author: 'ACodeBird',
-        //   time: '2019-08-31 15:18:31',
-        //   keywords: ['aop','spring','java'],
-        //   like: 666,
-        //   eye: 888,
-        //   message: 911,
-        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        // },
-        // {
-        //   id: 1,
-        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-        //   author: 'ACodeBird',
-        //   time: '2019-08-31 15:18:31',
-        //   keywords: ['aop','spring','java'],
-        //   like: 666,
-        //   eye: 888,
-        //   message: 911,
-        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        // },
-        // {
-        //   id: 1,
-        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-        //   author: 'ACodeBird',
-        //   time: '2019-08-31 15:18:31',
-        //   keywords: ['aop','spring','java'],
-        //   like: 666,
-        //   eye: 888,
-        //   message: 911,
-        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        // },
-        // {
-        //   id: 1,
-        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-        //   author: 'ACodeBird',
-        //   time: '2019-08-31 15:18:31',
-        //   keywords: ['aop','spring','java'],
-        //   like: 666,
-        //   eye: 888,
-        //   message: 911,
-        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        // },
-        // {
-        //   id: 1,
-        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-        //   author: 'ACodeBird',
-        //   time: '2019-08-31 15:18:31',
-        //   keywords: ['aop','spring','java'],
-        //   like: 666,
-        //   eye: 888,
-        //   message: 911,
-        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        // },
-        // {
-        //   id: 1,
-        //   title: 'spring的aop配置中aop:advisor和aop:aspect的区别',
-        //   author: 'ACodeBird',
-        //   time: '2019-08-31 15:18:31',
-        //   keywords: ['aop','spring','java'],
-        //   like: 666,
-        //   eye: 888,
-        //   message: 911,
-        //   summary: '1.aop:advisor配置的通知类必须实现advice接口常用的有下面几个接口：1.MethodBeforeAdvice 前置通知2.AfterReturningAdvice 成功通知3.ThrowsAdvice 异常通知4.AfterAdvice 是一个空接口，被2和3继承advice是一个空接口，定义方法还是跟平时一样2.aop:aspect配置的通知类不用实现advice接口，普通类即可'
-
-        // }
-      ],
+      contents: [],
       defaultCurrent: 1,
       total: 0,
    };
@@ -252,7 +168,7 @@ export default {
  },
  watch: {
   '$route' (to, from) {
-    if (to.path === '/article/category') {
+    if (to.path === '/article/category' || to.path === '/article') {
       this.contents = []
       this.handleLoadCategory() //加载专栏信息
       this.handleLoadAllArticle() //加载专栏文章

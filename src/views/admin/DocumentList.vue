@@ -322,6 +322,7 @@ export default {
       }
     },
     loadPermission() {
+      this.handleIsLogin()
         loadPermissionByUserId({"id": this.user.id}).then(res => {
           if(res.success === true) {
             this.permissions = res.data
@@ -375,7 +376,19 @@ export default {
         console.log('请求出现错误，请稍后再试',ex.message)
         this.$refs.table.refresh()
       })
-    }
+    },
+    handleIsLogin() {
+       //判断用户是否登录
+        isLogin().then(res => {
+          if (res.success === true) {
+            this.user=res.data
+            return
+          }
+          //this.$router.push('/admin/login')
+        }).catch(ex => {
+          console.log('isLogin error',ex.message)
+        })
+    },
 
  },
 

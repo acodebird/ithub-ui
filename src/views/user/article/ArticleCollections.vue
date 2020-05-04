@@ -36,7 +36,7 @@
                           <a @click="showBlogger(favorite.article.user.id)">{{favorite.article.user.username}}</a>
                         </span>
                         <span>{{favorite.article.createTime}}</span>
-                        <span  v-for="(keyword, index) in favorite.article.label!=null ? content.label.split(',') : ''" :key="index">
+                        <span  v-for="(keyword, index) in favorite.article.label!=null ? favorite.article.label.split(',') : ''" :key="index">
                           <a-icon type="tag" />{{keyword}}
                         </span>
                       </div>
@@ -174,7 +174,15 @@ export default {
  created() {
    this.handleLoadAll() //加载用户所有收藏
    this.handleIsSelf() //判断是否为当前用户博客
- }
+ },
+ watch: {
+  '$route' (to, from) {
+    if (to.path === '/article') {
+     this.handleLoadAll() //加载用户所有收藏
+     this.handleIsSelf() //判断是否为当前用户博客
+    }
+  }
+}
 }
 
 </script>

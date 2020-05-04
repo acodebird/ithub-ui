@@ -159,6 +159,13 @@ export default {
   created() {
     this.handleLoadByUser() //加载用户所有文章
   },
+  watch: {
+  '$route' (to, from) {
+    if (to.path === '/article') {
+     this.handleLoadByUser() //加载用户所有文章
+    }
+  }
+}
 }
 
 </script>

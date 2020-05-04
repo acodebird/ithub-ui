@@ -79,7 +79,7 @@ export default {
       ],
       defaultCurrent: 1,
       pagination: {
-          pageSize: 1,
+          pageSize: 5,
       },
       data: [],
       selectedRowKeys: [],
