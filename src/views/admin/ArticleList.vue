@@ -316,13 +316,13 @@ export default {
     },
     loadPermission() {
       this.handleIsLogin()
-        loadPermissionByUserId({"id": this.user.id}).then(res => {
-          if(res.success === true) {
-            this.permissions = res.data
-          }
-        }).catch(err => {
-          this.$message.error(`加载用户权限出错啦`)
-        })
+      loadPermissionByUserId({"id": this.user.id}).then(res => {
+        if(res.success === true) {
+          this.permissions = res.data
+        }
+      }).catch(err => {
+        this.$message.error(`加载用户权限出错啦`)
+      })
     },
     //判断是否有权限，没有权限返回false,用于隐藏按钮
     hasPerm(perm) {
@@ -347,8 +347,7 @@ export default {
        //判断用户是否登录
         isLogin().then(res => {
           if (res.success === true) {
-            this.user=res.data
-            return
+            this.user = res.data
           }
           //this.$router.push('/admin/login')
         }).catch(ex => {
